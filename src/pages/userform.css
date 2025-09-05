@@ -1,0 +1,183 @@
+/* userform.css */
+
+/*body {
+  background-color: #f4f6f8;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+ padding: 20px;*/
+/*  display: flex;'
+  justify-content: center;
+}*/
+
+form {
+  /*background: white;*/
+  max-width: 900px;
+  width: 100%;
+  padding: 30px;
+  border-radius: 12px;
+/*  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);*/
+  box-sizing: border-box;
+}
+
+/* 💡 Form in two-column grid layout on desktop */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+h2 {
+  text-align: center;
+  color: #1e7f63;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1e7f63;
+  font-size: 14px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="tel"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 12px;
+  outline: none;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #1e7f63;
+}
+
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkbox-group,
+.radio-group {
+  margin-bottom: 18px;
+}
+
+.checkbox-group label,
+.radio-group label {
+  font-weight: normal;
+  font-size: 14px;
+  color: #333;
+}
+
+.checkbox-group input[type="checkbox"],
+.radio-group input[type="radio"] {
+  margin-right: 8px;
+  accent-color: #1e7f63;
+}
+
+/*button[type="submit"] {
+  width: 100%;
+  background-color: #1e7f63;
+  color: white;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}*/
+
+/*button[type="submit"]:hover {
+  background-color: #16614f;
+}*/
+
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.custom-datepicker-input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 12px;
+  outline: none;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
+}
+
+.custom-datepicker-input:focus {
+  border-color: #1e7f63;
+}
+.react-datepicker-wrapper {
+  width: 100%;
+  padding: 0;
+  border: 0;
+}
+
+.form-wrapper {
+  max-width: 900px;
+  margin: 40px auto;
+}
+
+/* Single Card */
+.card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Header inside the card */
+.form-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #155c47;
+}
+
+.form-header h3 {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #1e7f63;
+}
+
+.form-header p {
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+
+
+
+/* Form card */
+.form-card {
+  padding: 30px;
+}
+

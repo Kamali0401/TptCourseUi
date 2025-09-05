@@ -1,0 +1,131 @@
+.batch-form-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f4f6f8;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.batch-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.batch-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #125c46;
+}
+
+.close-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.close-icon:hover {
+  color: #125c46;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.error {
+  font-size: 12px;
+  color: red;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+button {
+  width: 100%;
+  padding: 14px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #1e7f63;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #16614f;
+}
+
+.btn-secondary {
+  background-color: #aaa;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #888;
+}
+
+/* 📱 Mobile */
+@media (max-width: 560px) {
+  .batch-card {
+    width: 95%;
+    margin: 0 auto;
+  }
+}
+/* Center the popup box on small screens */
+
+.rdtPicker {
+    display: none;
+    /* position: absolute; */
+    min-width: 250px;
+    padding: 4px;
+    margin-top: 1px;
+    z-index: 99999 !important;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+    border: 1px solid #f9f9f9;
+}
+.rdtOpen .rdtPicker {
+  display: block;
+  position: absolute;
+  top: 100%;         /* Example: place directly below input */
+  left: 50%;
+  transform: translateX(-50%);
+  /* Optional: center vertically if needed */
+  /* top: 50%;
+     transform: translate(-50%, -50%); */
+}

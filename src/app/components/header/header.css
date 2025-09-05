@@ -1,0 +1,98 @@
+/* Header.css */
+
+/* Common Styles */
+.header-block {
+  width: 100%;
+  background-color: #f5f5f5;
+  margin-top: 5px;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0 1rem;
+  height: 80px;
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.menu-icon {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #d32f2f;
+}
+
+.brand-info {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.brand-info h2, .brand-info h3 {
+  margin: 0;
+}
+
+/* Support Section */
+.support {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.support .number {
+  font-weight: bold;
+}
+
+.support .icon {
+  color: #d32f2f;
+}
+
+/* Power Button */
+.power-button {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  font-weight: bold;
+  color: #d32f2f;
+}
+
+.power-button .icon {
+  color: inherit;
+}
+
+/* Media Queries */
+.desktop-header {
+  display: flex;
+}
+
+.mobile-header {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-header {
+    display: none; /* Hide desktop header on mobile */
+  }
+  .mobile-header {
+    display: flex; /* Show mobile header */
+  }
+
+  .brand-info h2 {
+    font-size: 1rem;
+  }
+  .brand-info h3 {
+    font-size: 0.85rem;
+  }
+
+  .support {
+    display: none; /* hide support in mobile header */
+  }
+}

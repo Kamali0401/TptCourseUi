@@ -1,0 +1,301 @@
+import React, { useEffect, useState,useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import AddApplicationFormPage from "../form/AddApplicationFormPage";
+import "../course/courseform.css"; // CSS styles for table/card responsiveness
+import IDCardTemplate from './IdCardTemplate.jsx';
+import { useReactToPrint } from 'react-to-print';
+const initialApplicationform = [
+  { id: 1, name: "Mathematics", sex: "Male" },
+  { id: 2, name: "Physics", sex: "Male" },
+  { id: 3, name: "Chemistry", sex: "Male" },
+];
+
+export default function ApplicationFormTable() {
+   /*const [selectedApplication, setSelectedApplication] = useState(null);
+  const [readyToPrint, setReadyToPrint] = useState(false);
+  const componentRef = useRef();
+
+  // ✅ Step 1: Setup the print function
+  const print = useReactToPrint({
+    content: () => componentRef.current,
+  });
+
+  // ✅ Step 2: Effect to trigger printing after DOM update
+  useEffect(() => {
+    if (readyToPrint && componentRef.current) {
+      print();
+      setReadyToPrint(false); // reset
+    }
+  }, [readyToPrint, componentRef.current]);
+
+  // ✅ Step 3: Call this to print
+  const handlePrint = (applicationData) => {
+    setSelectedApplication(applicationData); // set data to print
+    setReadyToPrint(true); // trigger print
+  };*/
+
+  /*const idRef = useRef();
+  const [selectedApplication, setSelectedApplication] = useState(null);
+
+  //const idRef = useRef();
+
+const handlePrint = (application) => {
+  setSelectedApplication(application);
+
+  // Open new window immediately (inside user click)
+  const printWindow = window.open("", "_blank");
+
+  // Delay rendering until state updates
+  setTimeout(() => {
+    if (!idRef.current) return; // safeguard
+
+    const printContents = idRef.current.innerHTML;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>ID Card</title>
+          <style>
+            @page { margin: 0; }
+            body { font-family: Arial, sans-serif; padding: 20px; }
+           
+          </style>
+        </head>
+        <body>${printContents}</body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }, 100);
+};*/
+
+ const idRef = useRef();
+  const [selectedApplication, setSelectedApplication] = useState(null);
+
+  const handlePrint = useReactToPrint({
+    //content: () => idRef.current,
+    documentTitle: "ID Card",
+    contentRef: idRef
+  });
+
+  const printApplication = (application) => {
+    debugger;
+    setSelectedApplication(application);
+    setTimeout(() => handlePrint(), 100);
+  };
+  const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedtable, setSelectedtable] = useState(null);
+  const [Applicationform, setApplicationform] = useState(initialApplicationform);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const ApplicationformPerPage = 5;
+
+  const handleAddCourse = () => {
+    setSelectedtable(null);
+    setShowModal(true);
+  };
+
+  const handleEdit = (applicationform) => {
+    setSelectedtable(applicationform);
+    setShowModal(true);
+  };
+
+  const handleModalSubmit = () => {
+    setShowModal(false);
+    setSelectedtable(null);
+  };
+
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won’t be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setApplicationform(Applicationform.filter((applicationform) => applicationform.id !== id));
+        Swal.fire("Deleted!", "applicationform has been deleted.", "success");
+      }
+    });
+  };
+
+  const filteredApplicationform = Applicationform.filter(
+    (applicationform) =>
+      applicationform.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredApplicationform.length / ApplicationformPerPage);
+  const indexOfLast = page * ApplicationformPerPage;
+  const indexOfFirst = indexOfLast - ApplicationformPerPage;
+  const currentApplicationform = filteredApplicationform.slice(indexOfFirst, indexOfLast);
+
+  return (
+    <>
+      <div className="list-container">
+        <div className="list-header">
+          <h4>Application Form Details</h4>
+          {/*<button onClick={handleAddCourse}>+ Add Application Form</button>*/}
+        </div>
+
+        <input
+          type="text"
+          placeholder="Search applicationform..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
+          style={{
+            padding: "0.5rem 1rem",
+            marginBottom: "1rem",
+            width: "100%",
+            borderRadius: "6px",
+            border: "1px solid #ccc",
+            fontSize: "1rem",
+          }}
+        />
+
+        {/* Desktop Table View */}
+        <table className="list-table desktop-only">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name of Candidate</th>
+              <th>Sex</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentApplicationform.length > 0 ? (
+              currentApplicationform.map((applicationform, index) => (
+                <tr key={applicationform.id}>
+                  <td data-label="ID">{index + 1}</td>
+                  <td data-label="Name of Candidate">{applicationform.name}</td>
+                  <td data-label="Sex">{applicationform.sex}</td>
+                  <td data-label="Actions" className="action-buttons">
+                    <button className="btn-edit" onClick={() => handleEdit(applicationform)}>
+                      Edit
+                    </button>
+                    <button className="btn-delete" onClick={() => handleDelete(applicationform.id)}>
+                     Delete
+                    </button>
+                   
+                  <button className="btn-delete" onClick={() => printApplication(applicationform)}> Id's Print</button>
+                    {/* This part is hidden on screen, but used for printing */}
+      
+
+   
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" style={{ textAlign: "center", padding: "1rem" }}>
+                  No Applicationform found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        
+        {/* Mobile Card View */}
+    {/* Mobile Card View */}
+<div className="mobile-only">
+  {currentApplicationform.length > 0 ? (
+    currentApplicationform.map((applicationform, index) => (
+      <div className="mobile-card" key={applicationform.id} role="group" aria-labelledby={`actions-label-${applicationform.id}`}>
+        <div className="mobile-field">
+          <strong>ID</strong>
+          <span>{index + 1}</span>
+        </div>
+        <div className="mobile-field">
+          <strong>Name</strong>
+          <span>{applicationform.name}</span>
+        </div>
+        <div className="mobile-field">
+          <strong>Sex</strong>
+          <span>{applicationform.sex}</span>
+        </div>
+        <div className="action-buttons" id={`actions-label-${applicationform.id}`}>
+    <strong>Actions</strong>
+    <div className="buttons-container">
+      <button
+        className="btn-edit"
+        onClick={() => handleEdit(applicationform)}
+        aria-label={`Edit ${applicationform.name} applicationform`}
+      >
+        Edit
+      </button>
+      <button
+        className="btn-delete"
+        onClick={() => handleDelete(applicationform.id)}
+        aria-label={`Delete ${applicationform.name} applicationform`}
+      >
+        Delete
+      </button>
+ <button className="btn-delete" onClick={() => printApplication(applicationform)}> Id's Print</button>
+
+    </div>
+  </div>
+      </div>
+    ))
+  ) : (
+    <div style={{ textAlign: "center", padding: "1rem" }}>No Applicationform found.</div>
+  )}
+</div>
+
+
+        <div className="pagination-container">
+          <div className="pagination">
+            <button onClick={() => setPage(1)} disabled={page === 1}>
+              &laquo;
+            </button>
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+            >
+              &lt;
+            </button>
+            <span>
+              Page <strong>{page}</strong> of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={page === totalPages}
+            >
+              &gt;
+            </button>
+            <button
+              onClick={() => setPage(totalPages)}
+              disabled={page === totalPages}
+            >
+              &raquo;
+            </button>
+          </div>
+        </div>
+      </div>
+<div style={{ display: "none" }}>
+       
+          
+            <IDCardTemplate  ref={idRef} data={selectedApplication} />
+          
+        
+      </div>
+      {/* Modal Form */}
+      <AddApplicationFormPage
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        onSubmit={handleModalSubmit}
+        applicationform={selectedtable}
+      />
+    </>
+  );
+}
