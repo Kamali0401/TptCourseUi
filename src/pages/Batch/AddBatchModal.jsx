@@ -220,7 +220,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                {/* <Field type="number" name="availableSeats" className="form-control"  readOnly />*/}
                <Field
   type="number"
-  name="totalSeats"
+  name="availableSeats"
   className="form-control"
   readOnly
   onChange={(e) => {

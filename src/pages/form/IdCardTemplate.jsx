@@ -8,6 +8,8 @@ const IDCardTemplate = forwardRef((props, ref) => {
     if (!data) {
     return null; // nothing to render
   }
+  const formatDate = (dateStr) => new Date(dateStr).toISOString().split("T")[0]; // yyyy-MM-dd
+
   return (
     <div ref={ref}>
       <div id="print-id-card" className="id-card-container">
@@ -24,12 +26,13 @@ const IDCardTemplate = forwardRef((props, ref) => {
   {/* <div className="photo-box">...</div> */} {/* commented out photo box */}
 
   <div className="right-info" style={{ flex: 1 }}>
-    <div><strong>Name:</strong> {data.name}</div>
-    <div><strong>Course:</strong> {data.course}</div>
-    <div><strong>Batch No.:</strong> {data.batch}</div>
-    <div className="validity">
-      <strong>Valid From:</strong> {data.validFrom} <strong>To:</strong> {data.validTo}
-    </div>
+    <div><strong>Name:</strong> {data.candidateName}</div>
+    <div><strong>Course:</strong> {data.courseName}</div>
+    <div><strong>Batch No.:</strong> {data.batchName}</div>
+   <div className="validity">
+  <strong>Valid From:</strong> {formatDate(data.batchStartDate)} 
+  <strong>To:</strong> {formatDate(data.batchEndDate)}
+</div>
   </div>
 
   <div
@@ -70,10 +73,10 @@ const IDCardTemplate = forwardRef((props, ref) => {
           </div>
           <div className="field">
             <strong>Address for Communication:</strong><br />
-            {data.address}
+            {data.contactAddress}
           </div>
           <div className="field">
-            <strong>Phone / Cell No.:</strong> {data.phone}
+            <strong>Phone / Cell No.:</strong> {data.mobileNumber}
           </div>
 
           <div className="signature-section">
