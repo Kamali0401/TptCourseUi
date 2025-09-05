@@ -18,7 +18,7 @@ export default function ApplicationFormTable() {
   const dispatch = useDispatch();
   
     // ✅ Take courses from Redux
-    const { data:  Applicationform= [], loading } = useSelector((state) => state.form);
+    const { data:  Applicationform= []} = useSelector((state) => state.form);
       const [searchQuery, setSearchQuery] = useState("");
       const [page, setPage] = useState(1);
       const ApplicationformPerPage = 5;
@@ -97,7 +97,6 @@ const handlePrint = (application) => {
   });
 
   const printApplication = (application) => {
-    debugger;
     setSelectedApplication(application);
     setTimeout(() => handlePrint(), 100);
   };
@@ -109,7 +108,7 @@ const handlePrint = (application) => {
     navigate("/main/studentapplicationform");
   };
     const handleEdit = (applicationform) => {
-      debugger;
+      
     navigate("/main/studentapplicationform", { state: { applicationform } });
   };
 

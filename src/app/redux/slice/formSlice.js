@@ -59,7 +59,6 @@ export const addNewForm = async (data, dispatch) => {
 // Action to update a Form
 export const updateForm = async (data, dispatch) => {
   try {
-    debugger;
     dispatch(setLoading()); // Set loading before making the API request
     await updateFormReq(data); // Call API to update Form
     await dispatch(fetchFormList()); // Fetch updated list of Forms
@@ -100,10 +99,11 @@ export const deleteForm = async (data, dispatch) => {
 // Action to fetch the Form list
 export const fetchFormList = () => async (dispatch) => {
   try {
+    
     dispatch(setLoading()); // Set loading before making the API request
     const res = await fetchFormListReq(); // Fetch Form list from API
     dispatch(addData(res.data)); // Dispatch the data to Redux state
-  } catch (error) {
+  } catch {
     dispatch(setError()); // Handle error if API fails
     Swal.fire({
       text: "Failed to load Forms",
