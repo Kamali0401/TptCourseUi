@@ -15,6 +15,15 @@ import { fetchFormList, deleteForm } from "../../app/redux/slice/formSlice.js";
 ];*/
 
 export default function ApplicationFormTable() {
+  const dispatch = useDispatch();
+  
+    // ✅ Take courses from Redux
+    const { data:  Applicationform= [], loading } = useSelector((state) => state.form);
+      const [searchQuery, setSearchQuery] = useState("");
+      const [page, setPage] = useState(1);
+      const ApplicationformPerPage = 5;
+      const [showModal, setShowModal] = useState(false);
+        const [selectedtable, setSelectedtable] = useState(null);
    /*const [selectedApplication, setSelectedApplication] = useState(null);
   const [readyToPrint, setReadyToPrint] = useState(false);
   const componentRef = useRef();

@@ -27,7 +27,7 @@ const IDCardTemplate = forwardRef((props, ref) => {
 
   <div className="right-info" style={{ flex: 1 }}>
     <div><strong>Name:</strong> {data.candidateName}</div>
-    <div><strong>Course:</strong> {data.course}</div>
+    <div><strong>Course:</strong> {data.courseName}</div>
     <div><strong>Batch No.:</strong> {data.batchName}</div>
    <div className="validity">
   <strong>Valid From:</strong> {formatDate(data.batchStartDate)} 
