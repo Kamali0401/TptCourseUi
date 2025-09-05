@@ -46,3 +46,9 @@
 .login-container button:hover {
   background: #ff0000;         
 }
+
+.error {
+  color: rgb(235, 37, 11);
+  font-weight: normal;
+  margin-top: 10px;
+}
