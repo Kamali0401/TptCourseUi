@@ -19,8 +19,8 @@ const QUALIFICATIONS = [
 const UserForm = () => {
   const location = useLocation();
   const dispatch = useDispatch();
-  
-//  const navigate = useNavigate();
+  const navigate = useNavigate();
+
   const applicationform = location.state?.applicationform;
 
   // Helper to parse education details from the application form
@@ -63,6 +63,10 @@ const UserForm = () => {
     setSelectedQuals(prev =>
       prev.includes(key) ? prev.filter(q => q !== key) : [...prev, key]
     );
+  };
+
+  const handleClose = () => {
+    navigate(-1); // Go back to the previous page
   };
 
   const calculateAge = (dob) => {
@@ -165,6 +169,9 @@ const UserForm = () => {
     <div className="card">
       {/* Header Section */}
       <div className="form-header">
+        <button type="button" className="close-icon" onClick={handleClose} aria-label="Close">
+          &times;
+        </button>
         <h2>
           THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636005
         </h2>
@@ -388,10 +395,13 @@ const UserForm = () => {
     </label>
   </div>
 
-  {/* Submit Button */}
-  <div style={{ gridColumn: '1 / -1', textAlign: 'center', marginTop: '20px' }}>
+  {/* Button Container */}
+  <div className="form-buttons-container">
     <button type="submit" className="submit-button">
       {applicationform ? 'Update Application' : 'Save Application'}
+    </button>
+    <button type="button" className="close-button" onClick={handleClose}>
+      Close
     </button>
   </div>
 </Form>
