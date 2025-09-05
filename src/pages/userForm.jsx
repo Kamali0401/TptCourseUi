@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Formik, Form, Field } from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -18,15 +18,41 @@ const UserForm = () => {
   const navigate = useNavigate();
   const applicationform = location.state?.applicationform;
 
+  // Helper to parse education details from the application form
+  const parsedEducationDetails = useMemo(() => {
+    if (!applicationform?.educationDetails) return {};
+    try {
+      const details = JSON.parse(applicationform.educationDetails);
+      const educationMap = {};
+
+      const educationTypeToKey = (type) => {
+        const lowerType = type.toLowerCase();
+        if (lowerType.includes('sslc') || lowerType.includes('10th')) return 'sslc';
+        if (lowerType.includes('hsc') || lowerType.includes('12th')) return 'hsc';
+        if (lowerType.includes('diploma')) return 'diploma';
+        if (lowerType.includes('degree') || lowerType.includes('b.sc') || lowerType.includes('bsc') || lowerType.includes('b.e')) return 'degree';
+        if (lowerType.includes('pg') || lowerType.includes('master')) return 'pg';
+        return 'others';
+      };
+
+      details.forEach(detail => {
+        const key = educationTypeToKey(detail.educationType);
+        educationMap[key] = {
+          year: detail.yearOfPassing || '',
+          marks: detail.percentage || '',
+          institution: detail.institution || '',
+        };
+      });
+      return educationMap;
+    } catch (e) {
+      console.error("Failed to parse education details:", e);
+      return {};
+    }
+  }, [applicationform]);
+
   // Initialize state based on whether we are editing or adding
-  const [selectedQuals, setSelectedQuals] = useState(
-    applicationform
-      ? QUALIFICATIONS.map((q) => q.key).filter(
-          (q) => applicationform[q] && (applicationform[q].year || applicationform[q].marks || applicationform[q].institution)
-        )
-      : []
-  );
-  const [dob, setDob] = useState(applicationform?.dob ? new Date(applicationform.dob) : null);
+  const [selectedQuals, setSelectedQuals] = useState(applicationform ? Object.keys(parsedEducationDetails) : []);
+  const [dob, setDob] = useState(applicationform?.dateOfBirth ? new Date(applicationform.dateOfBirth) : null);
 
   const toggleQualification = (key) => {
     setSelectedQuals(prev =>
@@ -47,12 +73,24 @@ const UserForm = () => {
   };
 
   const initialValues = applicationform ? {
-    ...applicationform,
-    dob: applicationform.dob ? new Date(applicationform.dob) : null,
-    date: applicationform.date ? new Date(applicationform.date) : null,
+    name: applicationform.candidateName || '',
+    sex: applicationform.sex || '',
+    fatherName: applicationform.fatherOrHusbandName || '',
+    address: applicationform.contactAddress || '',
+    mobile: applicationform.mobileNumber || '',
+    dob: applicationform.dateOfBirth ? new Date(applicationform.dateOfBirth) : null,
+    age: applicationform.age || '',
+    aadhaar: applicationform.aadharNumber || '',
+    email: applicationform.email || '',
+    admission: applicationform.modeOfAdmission || '',
+    status: applicationform.ifEmployed_WorkingAt ? 'Employed' : '',
+    workingAt: applicationform.ifEmployed_WorkingAt || '',
+    designation: applicationform.designation || '',
     declaration: applicationform.declaration || false,
+    place: applicationform.place || '',
+    date: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
     ...QUALIFICATIONS.reduce((acc, qual) => {
-      acc[qual.key] = applicationform[qual.key] || { year: '', marks: '', institution: '' };
+      acc[qual.key] = parsedEducationDetails[qual.key] || { year: '', marks: '', institution: '' };
       return acc;
     }, {})
   } : {
