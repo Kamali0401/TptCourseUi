@@ -13,6 +13,14 @@ const initialApplicationform = [
 ];
 
 export default function ApplicationFormTable() {
+  
+ // const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [selectedtable, setSelectedtable] = useState(null);
+  const [Applicationform, setApplicationform] = useState(initialApplicationform);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const ApplicationformPerPage = 5;
    /*const [selectedApplication, setSelectedApplication] = useState(null);
   const [readyToPrint, setReadyToPrint] = useState(false);
   const componentRef = useRef();
@@ -75,6 +83,8 @@ const handlePrint = (application) => {
 };*/
 
  const idRef = useRef();
+ const navigate = useNavigate();
+
   const [selectedApplication, setSelectedApplication] = useState(null);
 
   const handlePrint = useReactToPrint({
@@ -88,23 +98,24 @@ const handlePrint = (application) => {
     setSelectedApplication(application);
     setTimeout(() => handlePrint(), 100);
   };
-  const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const [selectedtable, setSelectedtable] = useState(null);
-  const [Applicationform, setApplicationform] = useState(initialApplicationform);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const ApplicationformPerPage = 5;
 
   const handleAddCourse = () => {
-    setSelectedtable(null);
-    setShowModal(true);
+    navigate("/main/studentapplicationform");
+  };
+    const handleEdit = (applicationform) => {
+      debugger;
+    navigate("/main/studentapplicationform", { state: { applicationform } });
   };
 
-  const handleEdit = (applicationform) => {
-    setSelectedtable(applicationform);
-    setShowModal(true);
-  };
+  // const handleAddCourse = () => {
+  //   setSelectedtable(null);
+  //   setShowModal(true);
+  // };
+
+  // const handleEdit = (applicationform) => {
+  //   setSelectedtable(applicationform);
+  //   setShowModal(true);
+  // };
 
   const handleModalSubmit = () => {
     setShowModal(false);
@@ -142,7 +153,7 @@ const handlePrint = (application) => {
       <div className="list-container">
         <div className="list-header">
           <h4>Application Form Details</h4>
-          {/*<button onClick={handleAddCourse}>+ Add Application Form</button>*/}
+          <button onClick={handleAddCourse}>+ Add New Application</button>
         </div>
 
         <input

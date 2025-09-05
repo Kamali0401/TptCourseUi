@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Formik, Form, Field } from 'formik';
+import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import "./userform.css";
@@ -13,8 +14,19 @@ const QUALIFICATIONS = [
 ];const MODE_OPTIONS = [/* your mode options */];
 
 const UserForm = () => {
-  const [selectedQuals, setSelectedQuals] = useState([]);
-  const [dob, setDob] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const applicationform = location.state?.applicationform;
+
+  // Initialize state based on whether we are editing or adding
+  const [selectedQuals, setSelectedQuals] = useState(
+    applicationform
+      ? QUALIFICATIONS.map((q) => q.key).filter(
+          (q) => applicationform[q] && (applicationform[q].year || applicationform[q].marks || applicationform[q].institution)
+        )
+      : []
+  );
+  const [dob, setDob] = useState(applicationform?.dob ? new Date(applicationform.dob) : null);
 
   const toggleQualification = (key) => {
     setSelectedQuals(prev =>
@@ -32,6 +44,40 @@ const UserForm = () => {
       years--;
     }
     return years;
+  };
+
+  const initialValues = applicationform ? {
+    ...applicationform,
+    dob: applicationform.dob ? new Date(applicationform.dob) : null,
+    date: applicationform.date ? new Date(applicationform.date) : null,
+    declaration: applicationform.declaration || false,
+    ...QUALIFICATIONS.reduce((acc, qual) => {
+      acc[qual.key] = applicationform[qual.key] || { year: '', marks: '', institution: '' };
+      return acc;
+    }, {})
+  } : {
+    name: '',
+    sex: '',
+    fatherName: '',
+    address: '',
+    mobile: '',
+    dob: null,
+    age: '',
+    aadhaar: '',
+    email: '',
+    admission: '',
+    status: '',
+    workingAt: '',
+    designation: '',
+    declaration: false,
+    place:'',
+    date:null,
+    sslc: { year: '', marks: '', institution: '' },
+    hsc: { year: '', marks: '', institution: '' },
+    diploma: { year: '', marks: '', institution: '' },
+    degree: { year: '', marks: '', institution: '' },
+    pg: { year: '', marks: '', institution: '' },
+    others: { year: '', marks: '', institution: '' },
   };
 
   return (
@@ -57,34 +103,19 @@ const UserForm = () => {
         </p>
       </div>
     <Formik
-      initialValues={{
-        name: '',
-        sex: '',
-        fatherName: '',
-        address: '',
-        mobile: '',
-        dob: null,
-        age: '',
-        aadhaar: '',
-        email: '',
-        admission: '',
-        status: '',
-        workingAt: '',
-        designation: '',
-        declaration: false,
-        place:'',
-        date:null,
-          // Optional: initialize dynamic qualifications if desired
-  sslc: { year: '', marks: '', institution: '' },
-  hsc: { year: '', marks: '', institution: '' },
-  diploma: { year: '', marks: '', institution: '' },
-  degree: { year: '', marks: '', institution: '' },
-  pg: { year: '', marks: '', institution: '' },
-  others: { year: '', marks: '', institution: '' },
-        // qualification details as nested objects (optional)
-      }}
-      onSubmit={values => {
-        console.log(values);
+      initialValues={initialValues}
+      enableReinitialize
+      onSubmit={(values, { setSubmitting }) => {
+        // Here you would handle form submission, e.g., API call
+        if (applicationform) {
+          console.log('Updating form:', values);
+          // API call to update...
+        } else {
+          console.log('Submitting new form:', values);
+          // API call to create...
+        }
+        setSubmitting(false);
+        navigate('/applicationformtable'); // Navigate back to the table
       }}
     >
       {({ values, setFieldValue }) => (
