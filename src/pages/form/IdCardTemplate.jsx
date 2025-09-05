@@ -24,7 +24,7 @@ const IDCardTemplate = forwardRef((props, ref) => {
   {/* <div className="photo-box">...</div> */} {/* commented out photo box */}
 
   <div className="right-info" style={{ flex: 1 }}>
-    <div><strong>Name:</strong> {data.name}</div>
+    <div><strong>Name:</strong> {data.candidateName}</div>
     <div><strong>Course:</strong> {data.course}</div>
     <div><strong>Batch No.:</strong> {data.batch}</div>
     <div className="validity">
@@ -70,10 +70,10 @@ const IDCardTemplate = forwardRef((props, ref) => {
           </div>
           <div className="field">
             <strong>Address for Communication:</strong><br />
-            {data.address}
+            {data.contactAddress}
           </div>
           <div className="field">
-            <strong>Phone / Cell No.:</strong> {data.phone}
+            <strong>Phone / Cell No.:</strong> {data.mobileNumber}
           </div>
 
           <div className="signature-section">

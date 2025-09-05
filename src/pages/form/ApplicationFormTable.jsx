@@ -6,13 +6,17 @@ import AddApplicationFormPage from "../form/AddApplicationFormPage";
 import "../course/courseform.css"; // CSS styles for table/card responsiveness
 import IDCardTemplate from './IdCardTemplate.jsx';
 import { useReactToPrint } from 'react-to-print';
-const initialApplicationform = [
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFormList, deleteForm } from "../../app/redux/slice/formSlice.js";
+/*const initialApplicationform = [
   { id: 1, name: "Mathematics", sex: "Male" },
   { id: 2, name: "Physics", sex: "Male" },
   { id: 3, name: "Chemistry", sex: "Male" },
-];
+];*/
 
 export default function ApplicationFormTable() {
+  const { data: Applicationform = [], loading } = useSelector((state) => state.form);
+  const dispatch = useDispatch();
    /*const [selectedApplication, setSelectedApplication] = useState(null);
   const [readyToPrint, setReadyToPrint] = useState(false);
   const componentRef = useRef();
@@ -91,11 +95,14 @@ const handlePrint = (application) => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [selectedtable, setSelectedtable] = useState(null);
-  const [Applicationform, setApplicationform] = useState(initialApplicationform);
+  //const [Applicationform, setApplicationform] = useState(initialApplicationform);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const ApplicationformPerPage = 5;
 
+    useEffect(() => {
+      dispatch(fetchFormList());
+    }, [dispatch]);
   const handleAddCourse = () => {
     setSelectedtable(null);
     setShowModal(true);
@@ -104,11 +111,13 @@ const handlePrint = (application) => {
   const handleEdit = (applicationform) => {
     setSelectedtable(applicationform);
     setShowModal(true);
+    
   };
 
   const handleModalSubmit = () => {
     setShowModal(false);
     setSelectedtable(null);
+    dispatch(fetchFormList());
   };
 
   const handleDelete = (id) => {
@@ -118,9 +127,10 @@ const handlePrint = (application) => {
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async(result) => {
       if (result.isConfirmed) {
-        setApplicationform(Applicationform.filter((applicationform) => applicationform.id !== id));
+        //setApplicationform(Applicationform.filter((applicationform) => applicationform.id !== id));
+         await deleteForm(id, dispatch);
         Swal.fire("Deleted!", "applicationform has been deleted.", "success");
       }
     });
@@ -128,7 +138,7 @@ const handlePrint = (application) => {
 
   const filteredApplicationform = Applicationform.filter(
     (applicationform) =>
-      applicationform.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      applicationform.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -178,13 +188,13 @@ const handlePrint = (application) => {
               currentApplicationform.map((applicationform, index) => (
                 <tr key={applicationform.id}>
                   <td data-label="ID">{index + 1}</td>
-                  <td data-label="Name of Candidate">{applicationform.name}</td>
+                  <td data-label="Name of Candidate">{applicationform.candidateName}</td>
                   <td data-label="Sex">{applicationform.sex}</td>
                   <td data-label="Actions" className="action-buttons">
                     <button className="btn-edit" onClick={() => handleEdit(applicationform)}>
                       Edit
                     </button>
-                    <button className="btn-delete" onClick={() => handleDelete(applicationform.id)}>
+                    <button className="btn-delete" onClick={() => handleDelete(applicationform.ApplicationID)}>
                      Delete
                     </button>
                    
