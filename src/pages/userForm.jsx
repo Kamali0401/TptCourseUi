@@ -4,6 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import "./userform.css";
+import { updateForm ,addNewForm} from '../app/redux/slice/formSlice';
+import { useDispatch } from "react-redux";
+
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
   { key: 'hsc', label: 'HSC' },
@@ -15,7 +18,9 @@ const QUALIFICATIONS = [
 
 const UserForm = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+//  const navigate = useNavigate();
   const applicationform = location.state?.applicationform;
 
   // Helper to parse education details from the application form
@@ -70,6 +75,42 @@ const UserForm = () => {
       years--;
     }
     return years;
+  };
+
+  const prepareSubmitData = (values) => {
+    const educationDetailsList = QUALIFICATIONS
+      .filter(qual => selectedQuals.includes(qual.key))
+      .map(qual => {
+        const detail = values[qual.key];
+        // Only include if at least one field has a value
+        if (detail && (detail.year || detail.marks || detail.institution)) {
+          return {
+            educationType: qual.label,
+            yearOfPassing: detail.year || null,
+            percentage: detail.marks || null,
+            institution: detail.institution || '',
+          };
+        }
+        return null;
+      })
+      .filter(Boolean); // remove nulls if any
+
+    const submitValues = { ...values };
+    QUALIFICATIONS.forEach(qual => delete submitValues[qual.key]);
+    submitValues.educationDetails = JSON.stringify(educationDetailsList);
+    return submitValues;
+  };
+
+  const handleSave = async (values) => {
+    const payload = prepareSubmitData(values);
+    console.log("Saving new application:", payload);
+    await addNewForm({ ...payload, createdBy: "AdminUser" }, dispatch);
+  };
+
+  const handleUpdate = async (values) => {
+    const payload = prepareSubmitData(values);
+    console.log("Updating application:", payload);
+    await updateForm({ ...payload, modifiedBy: "AdminUser" }, dispatch);
   };
 
   const initialValues = applicationform ? {
@@ -144,16 +185,12 @@ const UserForm = () => {
       initialValues={initialValues}
       enableReinitialize
       onSubmit={(values, { setSubmitting }) => {
-        // Here you would handle form submission, e.g., API call
         if (applicationform) {
-          console.log('Updating form:', values);
-          // API call to update...
+          handleUpdate(values);
         } else {
-          console.log('Submitting new form:', values);
-          // API call to create...
+          handleSave(values);
         }
         setSubmitting(false);
-        navigate('/applicationformtable'); // Navigate back to the table
       }}
     >
       {({ values, setFieldValue }) => (
@@ -235,54 +272,60 @@ const UserForm = () => {
     <Field name="email" type="email" required />
   </div>
 
-  {/* Qualifications checkboxes */}
-  <div className="checkbox-group">
-    <label>
-      Select Academic Qualifications <span style={{ color: 'red' }}>*</span>
-    </label>
-    {QUALIFICATIONS.map((qual) => (
-      <label key={qual.key} style={{ display: 'block', marginBottom: '6px' }}>
-        <input
-          type="checkbox"
-          checked={selectedQuals.includes(qual.key)}
-          onChange={() => toggleQualification(qual.key)}
-        />{' '}
-        {qual.label}
-      </label>
-    ))}
+  {/* Qualification Details Section as a Table */}
+  <div className="qualification-table-container">
+    <h4>Academic Qualifications <span style={{ color: 'red' }}>*</span></h4>
+    <table className="qualification-table">
+      <thead>
+        <tr>
+          <th>Select Academic Qualification</th>
+          <th>Year of Passing</th>
+          <th>% of Marks Obtained</th>
+          <th>Name of Institution</th>
+        </tr>
+      </thead>
+      <tbody>
+        {QUALIFICATIONS.map((qual) => (
+          <tr key={qual.key}>
+            <td>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selectedQuals.includes(qual.key)}
+                  onChange={() => toggleQualification(qual.key)}
+                />{' '}
+                {qual.label}
+              </label>
+            </td>
+            <td>
+              <Field
+                name={`${qual.key}.year`}
+                type="number"
+                disabled={!selectedQuals.includes(qual.key)}
+                required={selectedQuals.includes(qual.key)}
+              />
+            </td>
+            <td>
+              <Field
+                name={`${qual.key}.marks`}
+                type="number"
+                disabled={!selectedQuals.includes(qual.key)}
+                required={selectedQuals.includes(qual.key)}
+              />
+            </td>
+            <td>
+              <Field
+                name={`${qual.key}.institution`}
+                type="text"
+                disabled={!selectedQuals.includes(qual.key)}
+                required={selectedQuals.includes(qual.key)}
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
-
-  {/* Qualification Details Section */}
-  {selectedQuals.map((qualKey) => {
-    const label = QUALIFICATIONS.find((q) => q.key === qualKey)?.label;
-    return (
-      <div key={qualKey} className="qualification-block">
-        <h4>{label} Details</h4>
-        <div className="form-grid">
-          <div>
-            <label>
-              Year of Passing <span style={{ color: 'red' }}>*</span>
-            </label>
-            <Field name={`${qualKey}.year`} type="number" required />
-          </div>
-
-          <div>
-            <label>
-              % of Marks Obtained <span style={{ color: 'red' }}>*</span>
-            </label>
-            <Field name={`${qualKey}.marks`} type="number" required />
-          </div>
-
-          <div>
-            <label>
-              Name of Institution <span style={{ color: 'red' }}>*</span>
-            </label>
-            <Field name={`${qualKey}.institution`} type="text" required />
-          </div>
-        </div>
-      </div>
-    );
-  })}
 
   <div>
     <label>
@@ -345,7 +388,12 @@ const UserForm = () => {
     </label>
   </div>
 
-  <button type="submit" style={{ marginTop: 20 }}>Submit</button>
+  {/* Submit Button */}
+  <div style={{ gridColumn: '1 / -1', textAlign: 'center', marginTop: '20px' }}>
+    <button type="submit" className="submit-button">
+      {applicationform ? 'Update Application' : 'Save Application'}
+    </button>
+  </div>
 </Form>
 
       )}
