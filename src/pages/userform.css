@@ -180,4 +180,20 @@ textarea {
 .form-card {
   padding: 30px;
 }
+.batch-details-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+}
+
+.batch-details-card h4 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.batch-details-card p {
+  margin: 0.3rem 0;
+}
 

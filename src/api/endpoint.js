@@ -1,7 +1,8 @@
-import Login from "../pages/login/login";
+//import Login from "../pages/login/login";
 
 export const ApiKey = {
     Course:"/course",
     Batch:"/batch",
-    Form:"/applicationform"
+    Form:"/applicationform",
+    BatchDropdown:"/batchdropdown"
   };

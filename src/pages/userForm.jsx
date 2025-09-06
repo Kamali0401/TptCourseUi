@@ -1,9 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo,useEffect } from 'react';
 import { Formik, Form, Field } from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import "./userform.css";
+import { fetchCourseListReq } from '../api/course/course';
+import {fetchBatchDropdownReq} from '../api/batch/batch';
+import { useDispatch, useSelector } from "react-redux";
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
   { key: 'hsc', label: 'HSC' },
@@ -14,10 +17,56 @@ const QUALIFICATIONS = [
 ];const MODE_OPTIONS = [/* your mode options */];
 
 const UserForm = () => {
+    const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
   const applicationform = location.state?.applicationform;
+const [isPaymentDone, setIsPaymentDone] = useState(false);
+    // 🔹 State for course + batch
+  //const [courses, setCourses] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [selectedBatch, setSelectedBatch] = useState(null);
 
+   const [courseList, setCourseList] = useState([]);
+      console.log(courseList,"courseList")
+      // Fetch courses when modal opens
+    useEffect(() => {
+      const loadCourses = async () => {
+        try {
+          debugger;
+          const response = await fetchCourseListReq(); // 🔹 call API
+          if (response) {
+            setCourseList(response.data); // 🔹 store in state
+          }
+        } catch (err) {
+          console.error("Error fetching courses:", err);
+          Swal.fire("Error", "Failed to load courses", "error");
+        }
+      };
+  loadCourses();
+    
+    }, [dispatch]);
+
+  // 🔹 When course changes, fetch batches
+  const handleCourseChange = async (courseId, setFieldValue) => {
+    debugger;
+    setFieldValue("courseId", courseId);
+    setFieldValue("batchId", "");
+    setSelectedBatch(null);
+    try {
+      const response = await fetchBatchDropdownReq(courseId); // 🔹 your batch API
+      setBatches(response?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch batches:", error);
+    }
+  };
+
+  // 🔹 When batch changes, update selected batch details
+  const handleBatchChange = (batchId, setFieldValue) => {
+    setFieldValue("batchId", batchId);
+    const batch = batches.find(b => b.batchID === parseInt(batchId));
+    setSelectedBatch(batch || null);
+  };
   // Helper to parse education details from the application form
   const parsedEducationDetails = useMemo(() => {
     if (!applicationform?.educationDetails) return {};
@@ -338,14 +387,107 @@ const UserForm = () => {
     <Field type="date" name="date" required />
   </div>
 
-  <div style={{ marginTop: '10px' }}>
+ {/* 🔹 Course Dropdown */}
+              <div>
+                <label>Course Name <span style={{ color: 'red' }}>*</span></label>
+                <Field
+                  as="select"
+                  name="courseId"
+                  onChange={(e) => handleCourseChange(e.target.value, setFieldValue)}
+                  value={values.courseId}
+                  required
+                >
+                  <option value="">Select Course</option>
+                  {courseList.map(course => (
+                    <option key={course.courseID} value={course.courseID}>
+                      {course.courseName}
+                    </option>
+                  ))}
+                </Field>
+              </div>
+               <div>
+                  <label>Batch Name <span style={{ color: 'red' }}>*</span></label>
+                  <Field
+                    as="select"
+                    name="batchId"
+                    onChange={(e) => handleBatchChange(e.target.value, setFieldValue)}
+                    value={values.batchId}
+                    required
+                  >
+                    <option value="">Select Batch</option>
+                    {batches.map(batch => (
+                      <option key={batch.batchID} value={batch.batchID}>
+                        {batch.batchName}
+                      </option>
+                    ))}
+                  </Field>
+                </div>
+                {selectedBatch && (
+  <div className="batch-details-card">
+    <h4>Batch Details</h4>
+    <p><strong>Total Seats:</strong> {selectedBatch.totalSeats}</p>
+    <p><strong>Available Seats:</strong> {selectedBatch.availableSeats}</p>
+    <p><strong>Start Date:</strong> {selectedBatch.startDate}</p>
+    <p><strong>Instructor:</strong> {selectedBatch.instructorName}</p>
+    <p><strong>Course Fee:</strong> ₹{selectedBatch.courseFee}</p>
+
+    {selectedBatch.availableSeats === 0 && (
+      <p style={{ color: "red", fontWeight: "bold" }}>Batch Full</p>
+    )}
+  </div>
+)}
+  {/*<div style={{ marginTop: '10px' }}>
     <label>
       <Field type="checkbox" name="declaration" required />
       {' '}I hereby declare that the details furnished above are correct and I will adhere to the rules of the Continuing Education Centre.
     </label>
   </div>
 
-  <button type="submit" style={{ marginTop: 20 }}>Submit</button>
+  <button type="submit" style={{ marginTop: 20 }}>Submit</button>*/}
+  {/* Buttons */}
+  <div style={{ marginTop: '10px' }}>
+  <label>
+    <Field type="checkbox" name="declaration" required />
+    {' '}I hereby declare that the details furnished above are correct and I will adhere to the rules of the Continuing Education Centre.
+  </label>
+</div>
+<div style={{ marginTop: 20 }}>
+  {/* Show Pay button if declaration is checked and payment is not done */}
+  {values.declaration && !isPaymentDone && selectedBatch && (
+    <button
+      type="button"
+      style={{
+        backgroundColor: "#007bff",
+        color: "#fff",
+        border: "none",
+        padding: "12px 20px",
+        borderRadius: "6px",
+        fontSize: "16px",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        width: "100%",
+      }}
+      onClick={() => {
+        // simulate payment success
+        Swal.fire("Success", "Payment completed successfully!", "success");
+        setIsPaymentDone(true);
+      }}
+    >
+      Pay ₹{selectedBatch.courseFee}
+      <span role="img" aria-label="lock">🔒</span>
+    </button>
+  )}
+
+  {/* Show Submit button only after payment is done */}
+  {isPaymentDone && (
+    <button type="submit" style={{ marginTop: 10 }}>
+      Submit Application
+    </button>
+  )}
+</div>
 </Form>
 
       )}
