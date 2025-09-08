@@ -4,5 +4,5 @@ export const ApiKey = {
     Course:"/course",
     Batch:"/batch",
     Form:"/applicationform",
-    BatchDropdown:"/batchdropdown"
+    BatchDropdown:"/batch/dropdown"
   };
