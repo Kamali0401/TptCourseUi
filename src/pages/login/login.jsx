@@ -27,7 +27,7 @@ export default function Login() {
       localStorage.setItem("user", response.data.username);
 
     
-      navigate("/main"); 
+      navigate("/main/coursetable"); 
     }
   } catch (err) {
     console.error("Login failed:", err);
