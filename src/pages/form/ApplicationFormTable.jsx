@@ -188,6 +188,7 @@ const handlePrint = (application) => {
               <th>ID</th>
               <th>Name of Candidate</th>
               <th>Sex</th>
+              <th>File</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -198,6 +199,24 @@ const handlePrint = (application) => {
                   <td data-label="ID">{index + 1}</td>
                   <td data-label="Name of Candidate">{applicationform.candidateName}</td>
                   <td data-label="Sex">{applicationform.sex}</td>
+                  <td data-label="File">
+                    {applicationform.uploadedFileName && applicationform.fileUrl ? (
+                      <button
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = applicationform.fileUrl;
+                          link.setAttribute('download', applicationform.uploadedFileName);
+                          document.body.appendChild(link);
+                          link.click();
+                          link.parentNode.removeChild(link);
+                        }}
+                      >
+                        Download
+                      </button>
+                    ) : (
+                      'No File'
+                    )}
+                  </td>
                   <td data-label="Actions" className="action-buttons">
                     <button className="btn-edit" onClick={() => handleEdit(applicationform)}>
                       Edit
@@ -207,16 +226,12 @@ const handlePrint = (application) => {
                     </button>
                    
                   <button className="btn-delete" onClick={() => printApplication(applicationform)}> Id's Print</button>
-                    {/* This part is hidden on screen, but used for printing */}
-      
-
-   
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "1rem" }}>
+                <td colSpan="5" style={{ textAlign: "center", padding: "1rem" }}>
                   No Applicationform found.
                 </td>
               </tr>
@@ -242,27 +257,45 @@ const handlePrint = (application) => {
           <strong>Sex</strong>
           <span>{applicationform.sex}</span>
         </div>
+        <div className="mobile-field">
+          <strong>File</strong>
+          {applicationform.uploadedFileName && applicationform.fileUrl ? (
+            <button
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = applicationform.fileUrl;
+                link.setAttribute('download', applicationform.uploadedFileName);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+              }}
+            >
+              Download
+            </button>
+          ) : (
+            'No File'
+          )}
+        </div>
         <div className="action-buttons" id={`actions-label-${applicationform.id}`}>
-    <strong>Actions</strong>
-    <div className="buttons-container">
-      <button
-        className="btn-edit"
-        onClick={() => handleEdit(applicationform)}
-        aria-label={`Edit ${applicationform.name} applicationform`}
-      >
-        Edit
-      </button>
-      <button
-        className="btn-delete"
-        onClick={() => handleDelete(applicationform.id)}
-        aria-label={`Delete ${applicationform.name} applicationform`}
-      >
-        Delete
-      </button>
- <button className="btn-delete" onClick={() => printApplication(applicationform)}> Id's Print</button>
-
-    </div>
-  </div>
+          <strong>Actions</strong>
+          <div className="buttons-container">
+            <button
+              className="btn-edit"
+              onClick={() => handleEdit(applicationform)}
+              aria-label={`Edit ${applicationform.name} applicationform`}
+            >
+              Edit
+            </button>
+            <button
+              className="btn-delete"
+              onClick={() => handleDelete(applicationform.id)}
+              aria-label={`Delete ${applicationform.name} applicationform`}
+            >
+              Delete
+            </button>
+            <button className="btn-delete" onClick={() => printApplication(applicationform)}> Id's Print</button>
+          </div>
+        </div>
       </div>
     ))
   ) : (

@@ -1,4 +1,4 @@
-import React, { useState, useMemo,useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Formik, Form, Field } from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -9,13 +9,6 @@ import {fetchBatchDropdownReq} from '../api/batch/batch';
 import { useDispatch, useSelector } from "react-redux";
 import { updateForm ,addNewForm} from '../app/redux/slice/formSlice';
 //import { useDispatch } from "react-redux";
-import Swal from "sweetalert2";
-import axios from "axios";
-import { loadRazorpay } from "../../src/utlis/razorpay"; // Adjust path accordingly
-import { updateFormReq } from '../api/form/form';
-//import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
-//import RazorpayCheckout from 'react-native-razorpay';
-
 
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
@@ -27,12 +20,49 @@ const QUALIFICATIONS = [
 ];const MODE_OPTIONS = [/* your mode options */];
 
 const UserForm = () => {
-    const dispatch = useDispatch();
   const location = useLocation();
+  const applicationform = location.state?.applicationform;
+  // File upload/download state
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadedFileName, setUploadedFileName] = useState(applicationform?.uploadedFileName || '');
+  const [fileUrl, setFileUrl] = useState(applicationform?.fileUrl || '');
+  const fileInputRef = useRef();
+  // File upload handler (simulate API upload, replace with your API call)
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+      setUploadedFileName(e.target.files[0].name);
+    }
+  };
+
+  // Simulate upload (replace with your API call)
+  const uploadFile = async () => {
+    if (!selectedFile) return;
+    // Example: upload to backend
+    // const formData = new FormData();
+    // formData.append('file', selectedFile);
+    // const response = await fetch('/api/upload', { method: 'POST', body: formData });
+    // const data = await response.json();
+    // setFileUrl(data.url);
+    // setUploadedFileName(selectedFile.name);
+    // For now, just simulate
+    setFileUrl(URL.createObjectURL(selectedFile));
+  };
+
+  // Download handler (simulate, replace with your API call if needed)
+  const handleDownload = () => {
+    if (fileUrl) {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.setAttribute('download', uploadedFileName || 'file');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    }
+  };
+    const dispatch = useDispatch();
   //const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const applicationform = location.state?.applicationform;
 const [isPaymentDone, setIsPaymentDone] = useState(false);
     // 🔹 State for course + batch
   //const [courses, setCourses] = useState([]);
@@ -81,9 +111,9 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
   };
   // Helper to parse education details from the application form
   const parsedEducationDetails = useMemo(() => {
-    if (!applicationform?.listEducationDetails) return {};
+    if (!applicationform?.educationDetails) return {};
     try {
-      const details = JSON.parse(applicationform.listEducationDetails);
+      const details = JSON.parse(applicationform.educationDetails);
       const educationMap = {};
 
       const educationTypeToKey = (type) => {
@@ -113,7 +143,7 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
 
   // Initialize state based on whether we are editing or adding
   const [selectedQuals, setSelectedQuals] = useState(applicationform ? Object.keys(parsedEducationDetails) : []);
-  const [dateOfBirth, setDob] = useState(applicationform?.dateOfBirth ? new Date(applicationform.dateOfBirth) : null);
+  const [dob, setDob] = useState(applicationform?.dateOfBirth ? new Date(applicationform.dateOfBirth) : null);
 
   const toggleQualification = (key) => {
     setSelectedQuals(prev =>
@@ -125,9 +155,9 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
     navigate(-1); // Go back to the previous page
   };
 
-  const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return '';
-    const birthDate = new Date(dateOfBirth);
+  const calculateAge = (dob) => {
+    if (!dob) return '';
+    const birthDate = new Date(dob);
     const today = new Date();
     let years = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
@@ -157,71 +187,72 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
 
     const submitValues = { ...values };
     QUALIFICATIONS.forEach(qual => delete submitValues[qual.key]);
-    //submitValues.educationDetails = JSON.stringify(educationDetailsList);
-     // ✅ Pass as array, not string
-    submitValues.educationDetails = educationDetailsList;
+    submitValues.educationDetails = JSON.stringify(educationDetailsList);
+    // Attach file info if uploaded
+    if (uploadedFileName) {
+      submitValues.uploadedFileName = uploadedFileName;
+      submitValues.fileUrl = fileUrl;
+    }
     return submitValues;
   };
 
-
-
   const handleSave = async (values) => {
-    debugger;
+    // Upload file first if selected
+    if (selectedFile && !fileUrl) {
+      await uploadFile();
+    }
     const payload = prepareSubmitData(values);
     console.log("Saving new application:", payload);
-    await addNewForm({ ...payload,
-      courseId: Number(payload.courseId),  // convert to integer
-    batchId: Number(payload.batchId),    // convert to integer
-      createdBy: "AdminUser" }, dispatch);
+    await addNewForm({ ...payload, createdBy: "AdminUser" }, dispatch);
   };
 
   const handleUpdate = async (values) => {
+    if (selectedFile && !fileUrl) {
+      await uploadFile();
+    }
     const payload = prepareSubmitData(values);
     console.log("Updating application:", payload);
     await updateForm({ ...payload, modifiedBy: "AdminUser" }, dispatch);
   };
 
   const initialValues = applicationform ? {
-    candidateName: applicationform.candidateName || '',
+    name: applicationform.candidateName || '',
     sex: applicationform.sex || '',
-    fatherOrHusbandName: applicationform.fatherOrHusbandName || '',
-    contactAddress: applicationform.contactAddress || '',
-    mobileNumber: applicationform.mobileNumber || '',
-    dateOfBirth: applicationform.dateOfBirth ? new Date(applicationform.dateOfBirth) : null,
+    fatherName: applicationform.fatherOrHusbandName || '',
+    address: applicationform.contactAddress || '',
+    mobile: applicationform.mobileNumber || '',
+    dob: applicationform.dateOfBirth ? new Date(applicationform.dateOfBirth) : null,
     age: applicationform.age || '',
-    aadharNumber: applicationform.aadharNumber || '',
+    aadhaar: applicationform.aadharNumber || '',
     email: applicationform.email || '',
-    modeOfAdmission: applicationform.modeOfAdmission || '',
-    candidateStatus: applicationform.candidateStatus ? 'Employed' : '',
-    ifEmployed_WorkingAt: applicationform.ifEmployed_WorkingAt || '',
+    admission: applicationform.modeOfAdmission || '',
+    status: applicationform.ifEmployed_WorkingAt ? 'Employed' : '',
+    workingAt: applicationform.ifEmployed_WorkingAt || '',
     designation: applicationform.designation || '',
     declaration: applicationform.declaration || false,
     place: applicationform.place || '',
-    bloodGroup:applicationform.bloodGroup ||'',
-    applicationDate: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
+    date: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
     ...QUALIFICATIONS.reduce((acc, qual) => {
       acc[qual.key] = parsedEducationDetails[qual.key] || { year: '', marks: '', institution: '' };
       return acc;
     }, {})
   } : {
-    candidateName: '',
+    name: '',
     sex: '',
-    fatherOrHusbandName: '',
-    contactAddress: '',
-    mobileNumber: '',
-    dateOfBirth: null,
+    fatherName: '',
+    address: '',
+    mobile: '',
+    dob: null,
     age: '',
-    aadharNumber: '',
+    aadhaar: '',
     email: '',
-    modeOfAdmission: '',
-    candidateStatus: '',
-    ifEmployed_WorkingAt: '',
+    admission: '',
+    status: '',
+    workingAt: '',
     designation: '',
     declaration: false,
     place:'',
-    applicationDate:null,
-    bloodGroup:"",
-
+    date:null,
     sslc: { year: '', marks: '', institution: '' },
     hsc: { year: '', marks: '', institution: '' },
     diploma: { year: '', marks: '', institution: '' },
@@ -229,111 +260,6 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
     pg: { year: '', marks: '', institution: '' },
     others: { year: '', marks: '', institution: '' },
   };
-
- {/* const handleRazorpayPayment = async (data) => {
-  try {
-    debugger;
-
-    // Prepare options for Razorpay
-    const options = {
-      description: 'Course Payment',
-      currency: 'INR',
-      key: 'rzp_test_6pwjCwtwwp3YOu', // Replace with your Razorpay test key
-      amount: (selectedBatch.courseFee  * 100).toFixed(0), // Convert to paise
-      name: 'Thiagarajar Polytechnic College',
-      prefill: {
-        //email: quotation.request.appUser.email || 'Admin',
-        contact:  '0000000000',
-        name: "Admin",
-      },
-      theme: { color: '#8B5CF6' },
-    };
-
-    // Open Razorpay checkout
-    const paymentData = await RazorpayCheckout.open(options);
-    const response = await updateFormReq({
-      ...data,
-      isPaymentDone: true  // ✅ Pass updated payment status
-    });
-
-    console.log("Form updated successfully", response.data);
-    // If payment succeeds
-    /*await appRequestApi.updatePaymentStatus(quotation.requestId, {
-      paymentStatus: 'Success',
-      paymentRefereceNo: paymentData.razorpay_payment_id,
-    });*/
-
-   /* console.log("Payment updated successfully");
-   // setPaymentSuccess(true);
-
-    
-    setTimeout(() => {
-      router.navigate('/main/studentapplicationform');
-    }, 10000);
-
-  } catch (error) {
-    console.error("Payment error:", error);
-
-    // Handle Razorpay-specific errors if available
-    if (error && error.error) {
-      Swal.fire("Payment Failed", error.error.description || "Something went wrong", "error");
-    } else {
-      Swal.fire("Error", "Payment initiation failed", "error");
-    }
-  }
-};*/}
-const handleRazorpayPayment = (data) => {
-  try {
-    const options = {
-      key: 'rzp_test_6pwjCwtwwp3YOu', // Razorpay test key
-      amount: (selectedBatch.courseFee * 100).toFixed(0), // in paise
-      currency: 'INR',
-      name: 'Thiagarajar Polytechnic College',
-      description: 'Course Payment',
-      prefill: {
-        contact: '0000000000',
-        name: 'Admin',
-      },
-      theme: { color: '#8B5CF6' },
-      handler: async function (response) {
-        // Payment succeeded
-        console.log('Payment ID:', response.razorpay_payment_id);
-
-        try {
-          // Call your API to update the form/payment status
-          const apiResponse = await updateFormReq({
-            ...data,
-            isPaymentDone: true,
-           // paymentRefereceNo: response.razorpay_payment_id,
-          });
-
-          console.log('Form updated successfully', apiResponse.data);
-
-          // Redirect after 10 seconds
-          setTimeout(() => {
-            router.navigate('/main/form');
-          }, 10000);
-        } catch (apiError) {
-          console.error('API error:', apiError);
-          Swal.fire('Error', 'Payment succeeded but updating form failed', 'error');
-        }
-      },
-      modal: {
-        ondismiss: function () {
-          console.log('Payment popup closed by user');
-        },
-      },
-    };
-
-    // Open Razorpay checkout
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (error) {
-    console.error('Payment initiation error:', error);
-    Swal.fire('Error', 'Payment initiation failed', 'error');
-  }
-};
-
 
   return (
      <div className="form-wrapper">
@@ -378,7 +304,7 @@ const handleRazorpayPayment = (data) => {
     <label>
       Name of Candidate <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field type="text" name="candidateName" required />
+    <Field type="text" name="name" required />
   </div>
 
   <div>
@@ -396,21 +322,21 @@ const handleRazorpayPayment = (data) => {
     <label>
       Name of Father/Husband <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field type="text" name="fatherOrHusbandName" required />
+    <Field type="text" name="fatherName" required />
   </div>
 
   <div>
     <label>
       Contact Address <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field as="textarea" name="contactAddress" required />
+    <Field as="textarea" name="address" required />
   </div>
 
   <div>
     <label>
       Mobile Number <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field name="mobileNumber" type="tel" required />
+    <Field name="mobile" type="tel" required />
   </div>
 
   <div>
@@ -418,14 +344,18 @@ const handleRazorpayPayment = (data) => {
       Date of Birth <span style={{ color: 'red' }}>*</span>
     </label>
     <DatePicker
-      selected={dateOfBirth}
+      selected={dob}
       onChange={(date) => {
         setDob(date);
-        setFieldValue('dateOfBirth', date);
+        setFieldValue('dob', date);
         setFieldValue('age', calculateAge(date));
       }}
       dateFormat="yyyy-MM-dd"
       placeholderText="yyyy/mm/dd"
+      showYearDropdown
+      yearDropdownItemNumber={100}
+      scrollableYearDropdown
+      maxDate={new Date()}
       customInput={
         <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
       }
@@ -441,7 +371,7 @@ const handleRazorpayPayment = (data) => {
     <label>
       Aadhaar Number <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field type="text" name="aadharNumber" required />
+    <Field type="text" name="aadhaar" required />
   </div>
 
   <div>
@@ -449,12 +379,6 @@ const handleRazorpayPayment = (data) => {
       Email ID <span style={{ color: 'red' }}>*</span>
     </label>
     <Field name="email" type="email" required />
-  </div>
-  <div>
-    <label>
-      Blood Group <span style={{ color: 'red' }}>*</span>
-    </label>
-    <Field name="bloodGroup" type="text" required />
   </div>
 
   {/* Qualification Details Section as a Table */}
@@ -498,23 +422,14 @@ const handleRazorpayPayment = (data) => {
                 required={selectedQuals.includes(qual.key)}
               />
             </td>
-           <td>
-  <Field
-    as="textarea"
-    name={`${qual.key}.institution`}
-    disabled={!selectedQuals.includes(qual.key)}
-    required={selectedQuals.includes(qual.key)}
-    style={{
-      height:'41px',
-      padding: '8px',
-      boxSizing: 'border-box',
-      border: '1px solid #ccc',
-      borderRadius: '4px',
-      resize: 'vertical', // allow user to resize vertically
-      minHeight: '0px'   // optional: make it taller by default
-    }}
-  />
-</td>
+            <td>
+              <Field
+                name={`${qual.key}.institution`}
+                type="text"
+                disabled={!selectedQuals.includes(qual.key)}
+                required={selectedQuals.includes(qual.key)}
+              />
+            </td>
           </tr>
         ))}
       </tbody>
@@ -525,7 +440,7 @@ const handleRazorpayPayment = (data) => {
     <label>
       Mode of Admission <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field as="select" name="modeOfAdmission" required>
+    <Field as="select" name="admission" required>
       <option value="">Select</option>
       <option value="Advertisement">Advertisement</option>
       <option value="Friends">Friends</option>
@@ -538,7 +453,7 @@ const handleRazorpayPayment = (data) => {
     <label>
       Status of Candidate <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field as="select" name="candidateStatus" required>
+    <Field as="select" name="status" required>
       <option value="">Select</option>
       <option value="Student">Student</option>
       <option value="Unemployed">Unemployed</option>
@@ -548,11 +463,11 @@ const handleRazorpayPayment = (data) => {
     </Field>
   </div>
 
-  {values.candidateStatus === 'Employed' && (
+  {values.status === 'Employed' && (
     <>
       <div>
         <label>Working At</label>
-        <Field type="text" name="ifEmployed_WorkingAt" />
+        <Field type="text" name="workingAt" />
       </div>
       <div>
         <label>Designation</label>
@@ -572,7 +487,7 @@ const handleRazorpayPayment = (data) => {
     <label>
       Date <span style={{ color: 'red' }}>*</span>
     </label>
-    <Field type="date" name="applicationDate" required />
+    <Field type="date" name="date" required />
   </div>
 
  {/* 🔹 Course Dropdown */}
@@ -633,90 +548,80 @@ const handleRazorpayPayment = (data) => {
 
   <button type="submit" style={{ marginTop: 20 }}>Submit</button>*/}
   {/* Buttons */}
+  {/* File Upload Section */}
+  <div style={{ marginTop: '10px' }}>
+    <label>Upload Document (optional):</label>
+    <input
+      type="file"
+      ref={fileInputRef}
+      onChange={handleFileChange}
+      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+    />
+    {uploadedFileName && (
+      <div style={{ marginTop: 8 }}>
+        <span style={{ marginRight: 12 }}>{uploadedFileName}</span>
+        {fileUrl && (
+          <button type="button" onClick={handleDownload} style={{ marginRight: 8 }}>
+            Download
+          </button>
+        )}
+        {selectedFile && !fileUrl && (
+          <button type="button" onClick={uploadFile}>
+            Upload
+          </button>
+        )}
+      </div>
+    )}
+  </div>
+
   <div style={{ marginTop: '10px' }}>
   <label>
     <Field type="checkbox" name="declaration" required />
     {' '}I hereby declare that the details furnished above are correct and I will adhere to the rules of the Continuing Education Centre.
   </label>
 </div>
-<div style={{ marginTop: 20, textAlign: 'center' }}>
-  <div style={{
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: '12px',
-    maxWidth: '300px',
-    margin: '0 auto'
-  }}>
-    {/* Show Pay button if declaration is checked and payment is not done */}
-    {selectedBatch && (
-      <button
-        type="button"
-        style={{
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          padding: "12px 20px",
-          borderRadius: "6px",
-          fontSize: "16px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "8px",
-          width: "100%",
-        }}
-       /* onClick={() => {
-          Swal.fire("Success", "Payment completed successfully!", "success");
-          setIsPaymentDone(true);
-        }}*/
-        //onClick={handleRazorpayPayment}
-         onClick={() => handleRazorpayPayment(applicationform)}
-      >
-        Pay ₹{selectedBatch.courseFee}
-        <span role="img" aria-label="lock">🔒</span>
-      </button>
-    )}
-
-    {/* Show Submit button only after payment is done */}
-   
-      <button
-        type="submit"
-        style={{
-          backgroundColor: "#28a745",
-          color: "#fff",
-          border: "none",
-          padding: "12px 20px",
-          borderRadius: "6px",
-          fontSize: "16px",
-          cursor: "pointer",
-          width: "100%"
-        }}
-      >
-        {applicationform ? 'Update' : 'Submit'}
-      </button>
-    
-
-    {/* Show Close button always */}
+<div style={{ marginTop: 20 }}>
+  {/* Show Pay button if declaration is checked and payment is not done */}
+  {values.declaration && !isPaymentDone && selectedBatch && (
     <button
       type="button"
       style={{
-        backgroundColor: "#6c757d",
+        backgroundColor: "#007bff",
         color: "#fff",
         border: "none",
         padding: "12px 20px",
         borderRadius: "6px",
         fontSize: "16px",
         cursor: "pointer",
-        width: "100%"
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "8px",
+        width: "100%",
       }}
-      onClick={handleClose}
+      onClick={() => {
+        // simulate payment success
+        Swal.fire("Success", "Payment completed successfully!", "success");
+        setIsPaymentDone(true);
+      }}
     >
-      Close
+      Pay ₹{selectedBatch.courseFee}
+      <span role="img" aria-label="lock">🔒</span>
     </button>
-  </div>
-</div>
+  )}
 
+  {/* Show Submit button only after payment is done */}
+  {isPaymentDone && (
+    <button type="submit" className="submit-button">
+      {applicationform ? 'Update Application' : 'Submit Application'}
+    </button>
+  )}
+
+  {/* Show Close button always */}
+  <button type="button" className="close-button" onClick={handleClose}>
+    Close
+  </button>
+</div>
 </Form>
 
       )}
