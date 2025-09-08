@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { Formik, Form, Field } from 'formik';
 import DatePicker from 'react-datepicker';
@@ -16,37 +16,7 @@ const QUALIFICATIONS = [
 
 export default function AddApplicationFormPage({ show, handleClose, onSubmit, initialData ,applicationform}) {
   const [selectedQuals, setSelectedQuals] = useState([]);
-  const [dob, setDob] = useState(null); 
-  // File upload/download state
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [uploadedFileName, setUploadedFileName] = useState(initialData?.uploadedFileName || '');
-  const [fileUrl, setFileUrl] = useState(initialData?.fileUrl || '');
-  const fileInputRef = useRef();
-  // File upload handler (simulate API upload, replace with your API call)
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      setUploadedFileName(e.target.files[0].name);
-    }
-  };
-
-  // Simulate upload (replace with your API call)
-  const uploadFile = async () => {
-    if (!selectedFile) return;
-    setFileUrl(URL.createObjectURL(selectedFile));
-  };
-
-  // Download handler (simulate, replace with your API call if needed)
-  const handleDownload = () => {
-    if (fileUrl) {
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.setAttribute('download', uploadedFileName || 'file');
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-    }
-  };
+  const [dob, setDob] = useState(null);
 
   const toggleQualification = (key) => {
     setSelectedQuals((prev) =>
@@ -107,16 +77,7 @@ export default function AddApplicationFormPage({ show, handleClose, onSubmit, in
       <Formik
         enableReinitialize
         initialValues={ initialData ? { ...baseInitial, ...initialData } : baseInitial }
-        onSubmit={async (values, { resetForm }) => {
-          // Upload file first if selected
-          if (selectedFile && !fileUrl) {
-            await uploadFile();
-          }
-          // Attach file info if uploaded
-          if (uploadedFileName) {
-            values.uploadedFileName = uploadedFileName;
-            values.fileUrl = fileUrl;
-          }
+        onSubmit={(values, { resetForm }) => {
           onSubmit(values);
           resetForm();
           handleClose();
@@ -125,38 +86,6 @@ export default function AddApplicationFormPage({ show, handleClose, onSubmit, in
         {({ values, setFieldValue, resetForm }) => (
           <Form>
             <Modal.Body>
-              {/* File Upload Section */}
-              <label>Upload Document (optional):</label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-              />
-              {uploadedFileName && (
-                <div style={{ marginTop: 8 }}>
-                  <span style={{ marginRight: 12 }}>{uploadedFileName}</span>
-                  {fileUrl && (
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={handleDownload}
-                      style={{ marginRight: 8 }}
-                    >
-                      Download
-                    </Button>
-                  )}
-                  {selectedFile && !fileUrl && (
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={uploadFile}
-                    >
-                      Upload
-                    </Button>
-                  )}
-                </div>
-              )}
               {/* Include your header card here */}
               
 
