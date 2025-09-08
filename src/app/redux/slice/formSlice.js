@@ -37,6 +37,7 @@ export default FormSlice.reducer;
 // Action to add a new Form
 export const addNewForm = async (data, dispatch) => {
   try {
+    debugger;
     dispatch(setLoading()); // Set loading before making the API request
     await addNewFormReq(data); // Call API to add a Form
     await dispatch(fetchFormList()); // Fetch updated list of Forms

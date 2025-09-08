@@ -67,9 +67,18 @@ textarea:focus {
 }
 
 
-textarea {
+.textarea1 {
   resize: vertical;
-  min-height: 80px;
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  border: 1.5px solid #ccc;
+  border-radius: 12px;
+  outline: none;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.3s ease;
 }
 
 .checkbox-group,
@@ -244,9 +253,10 @@ textarea {
 /* Add this to your userform.css */
 
 .qualification-table-container {
-  grid-column: 1 / -1; /* Span across all columns in the parent grid */
+  grid-column: 1 / -1; 
   margin-top: 20px;
-  overflow-x: auto; /* For better responsiveness on small screens */
+  overflow-x: auto; 
+   color: #1e7f63;
 }
 
 .qualification-table {
@@ -288,6 +298,70 @@ textarea {
   align-items: center;
   gap: 8px;
 }
+/* Container for the qualification table */
+/*.qualification-table-container {
+  grid-column: 1 / -1;
+  margin-top: 20px;
+  overflow-x: auto; /* Enable horizontal scroll when needed */
+  
+  
+
+   
+
+
+/* Make the table width larger to force scrolling on smaller screens */
+/*.qualification-table {
+  width: 100%; /* 
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+
+.qualification-table th,
+.qualification-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+
+.qualification-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+
+.qualification-table input[type="number"],
+.qualification-table input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+.qualification-table input:disabled {
+  background-color: #f9f9f9;
+  cursor: not-allowed;
+  color: #999;
+}
+
+
+.qualification-table label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}*/
+.iybHcB {
+     display: flex
+; 
+     flex-grow: 0; 
+}
+
+
+
 
 .submit-button {
   background-color: #1e7f63;
