@@ -12,7 +12,7 @@ export default function RootLayout() {
       <HeaderSection>
         <Header onClickMenuBtn={() => setShowLabelledMenu(!showLabelledMenu)} />
       </HeaderSection>
-      <BottomSection>
+      {/*<BottomSection>*/}
         {/* <NavbarContainer>
           <Navigation showLabelledMenu={showLabelledMenu} />
         </NavbarContainer> */}
@@ -21,7 +21,7 @@ export default function RootLayout() {
             <Outlet /> {/* nested route children will render here */}
           </main>
         </ContentSection>
-      </BottomSection>
+      {/*</BottomSection>*/}
     </LayoutContainer>
   );
 }
@@ -36,14 +36,14 @@ const HeaderSection = styled.div`
   width: 100%;
 `;
 
-const BottomSection = styled.div`
+/*const BottomSection = styled.div`
   display: flex;
   flex-grow: 1;
 `;
 
 const NavbarContainer = styled.div`
   flex: 1;
-`;
+`;*/
 
 const ContentSection = styled.div`
   flex: 4;
