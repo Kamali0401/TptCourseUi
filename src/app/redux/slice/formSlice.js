@@ -39,7 +39,7 @@ export const addNewForm = async (data, dispatch) => {
   try {
     debugger;
     dispatch(setLoading()); // Set loading before making the API request
-    await addNewFormReq(data); // Call API to add a Form
+     const res = await addNewFormReq(data); // Call API to add a Form
     await dispatch(fetchFormList()); // Fetch updated list of Forms
   
     dispatch(setError()); // Handle error if API fails
@@ -47,6 +47,7 @@ export const addNewForm = async (data, dispatch) => {
           text: "Form added successfully!",
           icon: "success",
         });
+       return Array.isArray(res.data) ? res.data : [res.data];
       } catch (error) {
         dispatch(setError()); // Handle error if API fails
         Swal.fire({
@@ -61,12 +62,13 @@ export const addNewForm = async (data, dispatch) => {
 export const updateForm = async (data, dispatch) => {
   try {
     dispatch(setLoading()); // Set loading before making the API request
-    await updateFormReq(data); // Call API to update Form
+   const res = await updateFormReq(data); // Call API to update Form
     await dispatch(fetchFormList()); // Fetch updated list of Forms
    Swal.fire({
         text: "Form updated successfully!",
         icon: "success",
       });
+       return Array.isArray(res.data) ? res.data : [res.data];
     } catch (error) {
       dispatch(setError()); // Handle error if API fails
       Swal.fire({
@@ -103,7 +105,8 @@ export const fetchFormList = () => async (dispatch) => {
     
     dispatch(setLoading()); // Set loading before making the API request
     const res = await fetchFormListReq(); // Fetch Form list from API
-    dispatch(addData(res.data)); // Dispatch the data to Redux state
+    dispatch(addData(res.data));
+    return res.data; // Dispatch the data to Redux state
   } catch {
     dispatch(setError()); // Handle error if API fails
     Swal.fire({

@@ -6,6 +6,6 @@ export const ApiKey = {
     Form:"/applicationform",
     BatchDropdown:"/batch/dropdown",
     Attachment:"/uploadAttachment/viewAttachments",
-    uploadApplicationFiles: "/api/uploadAttachment",   
-    downloadApplicationFiles: "/api/uploadAttachment/download", 
+    uploadApplicationFiles: "/uploadAttachment",   
+    downloadApplicationFiles: "downloads/downloadAttachments", 
   };
