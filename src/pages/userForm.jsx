@@ -35,6 +35,35 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
   const [isPaymentDone, setIsPaymentDone] = useState(false);
   const [batches, setBatches] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState(null);
+  console.log(selectedBatch,"selectedBatch" );
+
+   const [courseList, setCourseList] = useState([]);
+      console.log(courseList,"courseList")
+      // Fetch courses when modal opens
+    useEffect(() => {
+      const loadCourses = async () => {
+        try {
+          debugger;
+          const response = await fetchCourseListReq(); // 🔹 call API
+          if (response) {
+            setCourseList(response.data); // 🔹 store in state
+          }
+        } catch (err) {
+          console.error("Error fetching courses:", err);
+          Swal.fire("Error", "Failed to load courses", "error");
+        }
+      };
+  loadCourses();
+    
+    }, [dispatch]);
+  // 🔹 Auto-load batches if editing (course is already selected)
+useEffect(() => {
+  if (applicationform?.courseID) {
+    fetchBatchDropdownReq(applicationform.courseID).then((res) => {
+      setBatches(res.data || []);
+    });
+  }
+}, [applicationform?.courseID]);
 
   // 🔹 File upload states
   const [selectedFile, setSelectedFile] = useState(null);
@@ -61,7 +90,7 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
     }
   };
 
-  const [courseList, setCourseList] = useState([]);
+  //const [courseList, setCourseList] = useState([]);
 
   useEffect(() => {
     const loadCourses = async () => {
@@ -97,9 +126,9 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
   };
 
   const parsedEducationDetails = useMemo(() => {
-    if (!applicationform?.listEducationDetails) return {};
+    if (!applicationform?.educationDetails) return {};
     try {
-      const details = JSON.parse(applicationform.listEducationDetails);
+      const details = JSON.parse(applicationform.educationDetails);
       const educationMap = {};
       const educationTypeToKey = (type) => {
         const lowerType = type.toLowerCase();
@@ -149,6 +178,10 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
     }
     return years;
   };
+  const [applicationDate, setApplicationDate] = useState(
+  applicationform?.applicationDate ? new Date(applicationform.applicationDate) : null
+);
+
 
   const prepareSubmitData = (values) => {
     const educationDetailsList = QUALIFICATIONS
@@ -169,26 +202,39 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
 
     const submitValues = { ...values };
     QUALIFICATIONS.forEach(qual => delete submitValues[qual.key]);
-    submitValues.educationDetails = educationDetailsList;
+    submitValues.educationDetails = JSON.stringify(educationDetailsList);
+     // ✅ Pass as array, not string
+    //submitValues.educationDetails = educationDetailsList;
     return submitValues;
   };
 
   const handleSave = async (values) => {
     const payload = prepareSubmitData(values);
-    await addNewForm({
-      ...payload,
-      courseId: Number(payload.courseId),
-      batchId: Number(payload.batchId),
-      createdBy: "AdminUser",
-    }, dispatch);
+    console.log("Saving new application:", payload);
+    await addNewForm({ ...payload,
+      courseId: Number(payload.courseId),  // convert to integer
+    batchId: Number(payload.batchId),    // convert to integer
+      createdBy: "AdminUser" }, dispatch);
+    // ✅ Added success alert + navigate
+  Swal.fire("Success", "Application added successfully!", "success").then(() => {
+    navigate("/main/applicationtable");  // redirect after clicking OK
+  });
   };
 
   const handleUpdate = async (values) => {
+    debugger;
     const payload = prepareSubmitData(values);
-    await updateForm({ ...payload, modifiedBy: "AdminUser" }, dispatch);
-  };
+    console.log("Updating application:", payload);
+
+    await updateForm({ ...payload, courseId: Number(payload.courseId),  // convert to integer
+    batchId: Number(payload.batchId),modifiedBy: "AdminUser" }, dispatch);
+    Swal.fire("Success", "Application updated successfully!", "success").then(() => {
+    navigate("/main/applicationtable");  // redirect after clicking OK
+  });
+};
 
   const initialValues = applicationform ? {
+    applicationID: applicationform.applicationID || 0,
     candidateName: applicationform.candidateName || '',
     sex: applicationform.sex || '',
     fatherOrHusbandName: applicationform.fatherOrHusbandName || '',
@@ -199,13 +245,16 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
     aadharNumber: applicationform.aadharNumber || '',
     email: applicationform.email || '',
     modeOfAdmission: applicationform.modeOfAdmission || '',
-    candidateStatus: applicationform.candidateStatus ? 'Employed' : '',
+    candidateStatus: applicationform.candidateStatus || '',
     ifEmployed_WorkingAt: applicationform.ifEmployed_WorkingAt || '',
-    designation: applicationform.designation || '',
+    desgination: applicationform.desgination || '',
     declaration: applicationform.declaration || false,
     place: applicationform.place || '',
-    bloodGroup: applicationform.bloodGroup || '',
+    bloodGroup:applicationform.bloodGroup || '',
     applicationDate: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
+    courseId: applicationform.courseID || '',
+    batchId: applicationform.batchId || '',
+    isPaymentDone: applicationform.isPaymentDone || false,
     ...QUALIFICATIONS.reduce((acc, qual) => {
       acc[qual.key] = parsedEducationDetails[qual.key] || { year: '', marks: '', institution: '' };
       return acc;
@@ -223,11 +272,16 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
     modeOfAdmission: '',
     candidateStatus: '',
     ifEmployed_WorkingAt: '',
-    designation: '',
+    desgination: '',
     declaration: false,
-    place: '',
-    applicationDate: null,
-    bloodGroup: "",
+    place:'',
+    applicationDate:null,
+    bloodGroup: '',
+    courseId: '',
+    batchId: '',
+    isPaymentDone: false,
+
+
     sslc: { year: '', marks: '', institution: '' },
     hsc: { year: '', marks: '', institution: '' },
     diploma: { year: '', marks: '', institution: '' },
