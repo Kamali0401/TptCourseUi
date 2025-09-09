@@ -51,6 +51,8 @@ export default function AddApplicationFormPage({ show, handleClose, onSubmit, in
     declaration: false,
     place:"",
     date:null,
+    imageFile: null,   // 🔹 for upload
+    imagePath: "",     // 🔹 for preview/download
     sslc: { year: '', marks: '', institution: '' },
     hsc: { year: '', marks: '', institution: '' },
     diploma: { year: '', marks: '', institution: '' },
@@ -78,7 +80,15 @@ export default function AddApplicationFormPage({ show, handleClose, onSubmit, in
         enableReinitialize
         initialValues={ initialData ? { ...baseInitial, ...initialData } : baseInitial }
         onSubmit={(values, { resetForm }) => {
-          onSubmit(values);
+          const formData = new FormData();
+          Object.keys(values).forEach((key) => {
+            if (key === "imageFile" && values[key]) {
+              formData.append("imageFile", values[key]);
+            } else {
+              formData.append(key, values[key]);
+            }
+          });
+          onSubmit(formData);
           resetForm();
           handleClose();
         }}
@@ -88,7 +98,6 @@ export default function AddApplicationFormPage({ show, handleClose, onSubmit, in
             <Modal.Body>
               {/* Include your header card here */}
               
-
               {/* Form Fields */}
               <label>Name of Candidate</label>
               <Field type="text" name="name" required className="form-control"/>
@@ -196,21 +205,60 @@ export default function AddApplicationFormPage({ show, handleClose, onSubmit, in
                 </>
               )}
               
-                  <label>
-                    Place <span style={{ color: 'red' }}>*</span>
-                  </label>
-                  <Field type="text" name="place" required />
-               
-                  <label>
-                    Date <span style={{ color: 'red' }}>*</span>
-                  </label>
-                  <Field type="date" name="date" required />
-                
+              <label>
+                Place <span style={{ color: 'red' }}>*</span>
+              </label>
+              <Field type="text" name="place" required />
+            
+              <label>
+                Date <span style={{ color: 'red' }}>*</span>
+              </label>
+              <Field type="date" name="date" required />
+
+              {/* 🔹 File Upload & Download */}
+              <div className="form-group" style={{ marginTop: '20px' }}>
+                <label htmlFor="imageFile">Upload Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-control"
+                  onChange={(event) => {
+                    const file = event.currentTarget.files[0];
+                    if (file) {
+                      setFieldValue("imageFile", file);
+                    }
+                  }}
+                />
+
+                {values.imageFile && (
+                  <div style={{ marginTop: "10px" }}>
+                    <strong>Selected:</strong> {values.imageFile.name}
+                  </div>
+                )}
+
+                {applicationform && values.imagePath && (
+                  <div style={{ marginTop: "15px" }}>
+                    <img
+                      src={values.imagePath}
+                      alt="Uploaded Preview"
+                      style={{ width: "150px", border: "1px solid #ccc", marginBottom: "10px" }}
+                    />
+                    <div>
+                      <a
+                        href={values.imagePath}
+                        download
+                        className="btn btn-sm btn-primary"
+                      >
+                        Download Image
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <label>
                 <Field type="checkbox" name="declaration" required />
-            I hereby declare that the details furnished above are correct and I will adhere the rules of Continuing Education Centre.
-
+                I hereby declare that the details furnished above are correct and I will adhere the rules of Continuing Education Centre.
               </label>
             </Modal.Body>
 

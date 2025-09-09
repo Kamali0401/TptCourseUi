@@ -197,8 +197,8 @@ const handlePrint = (application) => {
   const filteredApplicationform = Applicationform.filter(
     (applicationform) =>
       applicationform.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase()
+  ));
 
   const totalPages = Math.ceil(filteredApplicationform.length / ApplicationformPerPage);
   const indexOfLast = page * ApplicationformPerPage;
@@ -363,6 +363,7 @@ const handlePrint = (application) => {
         handleClose={() => setShowModal(false)}
         onSubmit={handleModalSubmit}
         applicationform={selectedtable}
+        initialData={selectedtable ? { ...selectedtable, imagePath: selectedtable.imagePath || "" } : null}  /* 🔹 added for file preview/download */
       />
     </>
   );
