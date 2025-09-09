@@ -31,6 +31,21 @@ export const fetchFormListReq = async () => {
       throw { error: true, data: "", message: "", errorMsg: error };
     }
   };
+  export const fetchAttachmentReq = async (id,type) => {
+    try {
+      debugger;
+      const res = await publicAxios.get(`${ApiKey.Attachment}?id=${id}&type=${type}`);
+  
+      const _data = res.data;
+      return { error: false, data: _data, message: "", errorMsg: "" };
+    } catch (err) {
+      let error;
+      if (err.response) error = err.response.data.message || "Response error";
+      else if (err.request) error = "Request error";
+      else error = "Something went wrong please try again later";
+      throw { error: true, data: "", message: "", errorMsg: error };
+    }
+  };
   export const addNewFormReq = async (data) => {
     try {
       const res = await publicAxios.post(`${ApiKey.Form}`, data);
@@ -88,3 +103,35 @@ export const deleteFormReq = async (actionId) => {
     throw { error: true, data: "", message: "", errorMsg: error };
   }
 };
+// Upload Form Files
+
+export const uploadFormFilesReq = async (formData) => {
+  try {
+    const res = await authAxios.post(`${ApiKey.uploadApplicationFiles}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return { error: false, data: res.data, message: res.data.message || "", errorMsg: "" };
+  } catch (err) {
+    let error;
+    if (err.response) error = err.response.data.message || "Response error";
+    else if (err.request) error = "Request error";
+    else error = "Something went wrong please try again later";
+    throw { error: true, data: "", message: "", errorMsg: error };
+  }
+};
+
+// Download Form Files
+
+export const downloadFormFilesReq = async (formId) => {
+  try {
+    const res = await authAxios.get(`${ApiKey.downloadApplicationFiles}?id=${formId}`, { responseType: "blob" });
+    return res.data; // This will be a Blob
+  } catch (err) {
+    let error;
+    if (err.response) error = err.response.data.message || "Response error";
+    else if (err.request) error = "Request error";
+    else error = "Something went wrong please try again later";
+    throw { error: true, data: "", message: "", errorMsg: error };
+  }
+};
+

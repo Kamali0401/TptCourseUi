@@ -8,6 +8,7 @@ import IDCardTemplate from './IdCardTemplate.jsx';
 import { useReactToPrint } from 'react-to-print';
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFormList, deleteForm } from "../../app/redux/slice/formSlice.js";
+import {fetchAttachmentReq} from "../../api/form/form.js"
 /*const initialApplicationform = [
   { id: 1, name: "Mathematics", sex: "Male" },
   { id: 2, name: "Physics", sex: "Male" },
@@ -96,9 +97,58 @@ const handlePrint = (application) => {
     contentRef: idRef
   });
 
-  const printApplication = (application) => {
+  const fetchAttachment = async (id, type) => {
+    try {
+      debugger;
+      const response = await fetchAttachmentReq(id,type);
+      /*if (!response.ok) {
+        throw new Error("Failed to fetch attachment");
+      }*/
+     /* const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      return imageUrl;*/
+    /*  const result = await response.json();
+
+    if (result.error || !result.data.length) {
+      throw new Error("No attachments found");
+    }*/
+
+    const attachment = response.data[0]; // take the first attachment
+    const base64Data = attachment.blobData;
+
+    // Convert base64 string into image URL
+    const imageUrl = `data:image/png;base64,${base64Data}`;
+    return imageUrl;
+      console.log(imageUrl,"return imageUrl");
+    } catch (error) {
+      console.error("Error fetching attachment:", error);
+      return null;
+    }
+  };
+
+  /*const printApplication = (application) => {
     setSelectedApplication(application);
     setTimeout(() => handlePrint(), 100);
+  };*/
+  
+  const printApplication = async (application) => {
+    try {
+      const imageUrl = await fetchAttachment(application.applicationID, 'Students');
+      setSelectedApplication({
+        ...application,
+        stampImage: imageUrl // Add the image URL to the data
+      });
+
+      setTimeout(() => {
+        handlePrint();
+        // Optional cleanup
+        if (imageUrl) {
+          URL.revokeObjectURL(imageUrl);
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Error preparing print:", error);
+    }
   };
 
     useEffect(() => {
@@ -147,8 +197,8 @@ const handlePrint = (application) => {
   const filteredApplicationform = Applicationform.filter(
     (applicationform) =>
       applicationform.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase()
+  ));
 
   const totalPages = Math.ceil(filteredApplicationform.length / ApplicationformPerPage);
   const indexOfLast = page * ApplicationformPerPage;
@@ -313,6 +363,7 @@ const handlePrint = (application) => {
         handleClose={() => setShowModal(false)}
         onSubmit={handleModalSubmit}
         applicationform={selectedtable}
+        initialData={selectedtable ? { ...selectedtable, imagePath: selectedtable.imagePath || "" } : null}  /* 🔹 added for file preview/download */
       />
     </>
   );

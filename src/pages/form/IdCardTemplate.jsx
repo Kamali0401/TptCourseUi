@@ -52,7 +52,8 @@ const IDCardTemplate = forwardRef((props, ref) => {
       <img
         src={data.stampImage}
         alt="Stamp"
-        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+      //  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+       style={{ width: '2cm', height: '2.5cm', objectFit: 'cover' }}
       />
     ) : (
       <span>Stamp Image</span>
