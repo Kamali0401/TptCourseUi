@@ -274,7 +274,7 @@ const handlePrint = (application) => {
           </tbody>
         </table>
         
-        {/* Mobile Card View */}
+        {/* Mobile Card jView */}
     {/* Mobile Card View */}
 <div className="mobile-only">
   {currentApplicationform.length > 0 ? (
