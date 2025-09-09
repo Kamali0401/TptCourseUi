@@ -38,6 +38,7 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
   //const [courses, setCourses] = useState([]);
   const [batches, setBatches] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState(null);
+  console.log(selectedBatch,"selectedBatch" );
 
    const [courseList, setCourseList] = useState([]);
       console.log(courseList,"courseList")
@@ -58,6 +59,15 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
   loadCourses();
     
     }, [dispatch]);
+  // 🔹 Auto-load batches if editing (course is already selected)
+useEffect(() => {
+  if (applicationform?.courseID) {
+    fetchBatchDropdownReq(applicationform.courseID).then((res) => {
+      setBatches(res.data || []);
+    });
+  }
+}, [applicationform?.courseID]);
+
 
   // 🔹 When course changes, fetch batches
   const handleCourseChange = async (courseId, setFieldValue) => {
@@ -81,9 +91,9 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
   };
   // Helper to parse education details from the application form
   const parsedEducationDetails = useMemo(() => {
-    if (!applicationform?.listEducationDetails) return {};
+    if (!applicationform?.educationDetails) return {};
     try {
-      const details = JSON.parse(applicationform.listEducationDetails);
+      const details = JSON.parse(applicationform.educationDetails);
       const educationMap = {};
 
       const educationTypeToKey = (type) => {
@@ -136,6 +146,10 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
     }
     return years;
   };
+  const [applicationDate, setApplicationDate] = useState(
+  applicationform?.applicationDate ? new Date(applicationform.applicationDate) : null
+);
+
 
   const prepareSubmitData = (values) => {
     const educationDetailsList = QUALIFICATIONS
@@ -157,9 +171,9 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
 
     const submitValues = { ...values };
     QUALIFICATIONS.forEach(qual => delete submitValues[qual.key]);
-    //submitValues.educationDetails = JSON.stringify(educationDetailsList);
+    submitValues.educationDetails = JSON.stringify(educationDetailsList);
      // ✅ Pass as array, not string
-    submitValues.educationDetails = educationDetailsList;
+    //submitValues.educationDetails = educationDetailsList;
     return submitValues;
   };
 
@@ -173,15 +187,26 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
       courseId: Number(payload.courseId),  // convert to integer
     batchId: Number(payload.batchId),    // convert to integer
       createdBy: "AdminUser" }, dispatch);
+    // ✅ Added success alert + navigate
+  Swal.fire("Success", "Application added successfully!", "success").then(() => {
+    navigate("/main/applicationtable");  // redirect after clicking OK
+  });
   };
 
   const handleUpdate = async (values) => {
+    debugger;
     const payload = prepareSubmitData(values);
     console.log("Updating application:", payload);
-    await updateForm({ ...payload, modifiedBy: "AdminUser" }, dispatch);
-  };
+
+    await updateForm({ ...payload, courseId: Number(payload.courseId),  // convert to integer
+    batchId: Number(payload.batchId),modifiedBy: "AdminUser" }, dispatch);
+    Swal.fire("Success", "Application updated successfully!", "success").then(() => {
+    navigate("/main/applicationtable");  // redirect after clicking OK
+  });
+};
 
   const initialValues = applicationform ? {
+    applicationID: applicationform.applicationID || 0,
     candidateName: applicationform.candidateName || '',
     sex: applicationform.sex || '',
     fatherOrHusbandName: applicationform.fatherOrHusbandName || '',
@@ -192,13 +217,16 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
     aadharNumber: applicationform.aadharNumber || '',
     email: applicationform.email || '',
     modeOfAdmission: applicationform.modeOfAdmission || '',
-    candidateStatus: applicationform.candidateStatus ? 'Employed' : '',
+    candidateStatus: applicationform.candidateStatus || '',
     ifEmployed_WorkingAt: applicationform.ifEmployed_WorkingAt || '',
-    designation: applicationform.designation || '',
+    desgination: applicationform.desgination || '',
     declaration: applicationform.declaration || false,
     place: applicationform.place || '',
-    bloodGroup:applicationform.bloodGroup ||'',
+    bloodGroup:applicationform.bloodGroup || '',
     applicationDate: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
+    courseId: applicationform.courseID || '',
+    batchId: applicationform.batchId || '',
+    isPaymentDone: applicationform.isPaymentDone || false,
     ...QUALIFICATIONS.reduce((acc, qual) => {
       acc[qual.key] = parsedEducationDetails[qual.key] || { year: '', marks: '', institution: '' };
       return acc;
@@ -216,11 +244,15 @@ const [isPaymentDone, setIsPaymentDone] = useState(false);
     modeOfAdmission: '',
     candidateStatus: '',
     ifEmployed_WorkingAt: '',
-    designation: '',
+    desgination: '',
     declaration: false,
     place:'',
     applicationDate:null,
-    bloodGroup:"",
+    bloodGroup: '',
+    courseId: '',
+    batchId: '',
+    isPaymentDone: false,
+
 
     sslc: { year: '', marks: '', institution: '' },
     hsc: { year: '', marks: '', institution: '' },
@@ -556,24 +588,33 @@ const handleRazorpayPayment = (data) => {
       </div>
       <div>
         <label>Designation</label>
-        <Field type="text" name="designation" />
+        <Field type="text" name="desgination" />
       </div>
     </>
   )}
+<label>
+  Place <span style={{ color: 'red' }}>*</span>
+</label>
+<Field type="text" name="place" required />
 
   <div>
-    <label>
-      Place <span style={{ color: 'red' }}>*</span>
-    </label>
-    <Field type="text" name="place" required />
-  </div>
+  <label>
+    Date <span style={{ color: 'red' }}>*</span>
+  </label>
+  <DatePicker
+    selected={applicationDate}
+    onChange={(date) => {
+      setApplicationDate(date);
+      setFieldValue('applicationDate', date);
+    }}
+    dateFormat="dd-MM-yyyy"
+    placeholderText="dd/mm/yyyy"
+    customInput={
+      <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
+    }
+  />
+</div>
 
-  <div>
-    <label>
-      Date <span style={{ color: 'red' }}>*</span>
-    </label>
-    <Field type="date" name="applicationDate" required />
-  </div>
 
  {/* 🔹 Course Dropdown */}
               <div>
