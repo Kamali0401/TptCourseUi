@@ -29,6 +29,8 @@ const UserForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const applicationform = location.state?.applicationform;
+const [isSubmitClicked, setIsSubmitClicked] = useState(false);
+const [isUpdateClicked, setIsUpdateClicked] = useState(false);
 
   const [isPaymentDone, setIsPaymentDone] = useState(false);
   const [batches, setBatches] = useState([]);
@@ -247,7 +249,9 @@ const UserForm = () => {
         handler: async function (response) {
           try {
             const apiResponse = await updateFormReq({ ...data, isPaymentDone: true });
+            if(apiResponse.status =204){
             setTimeout(() => { router.navigate('/main/form'); }, 10000);
+            }
           } catch (apiError) {
             Swal.fire('Error', 'Payment succeeded but updating form failed', 'error');
           }
@@ -279,8 +283,10 @@ const UserForm = () => {
   enableReinitialize
   onSubmit={async (values, { setSubmitting }) => {
     if (applicationform) {
+      setIsUpdateClicked(true);
       handleUpdate(values);
     } else {
+      setIsSubmitClicked(true);
       handleSave(values);
     }
     setSubmitting(false);
@@ -608,76 +614,101 @@ const UserForm = () => {
 
       {/* Buttons */}
       <div style={{ marginTop: 20, textAlign: 'center' }}>
-        <div
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: '12px',
+      maxWidth: '300px',
+      margin: '0 auto',
+    }}
+  >
+
+    {/* Show Pay + Close only after submit or update is clicked, and payment is not done */}
+    {(isSubmitClicked || isUpdateClicked) && applicationform && !applicationform.isPaymentDone && (
+      <>
+        <button
+          type="button"
           style={{
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            fontSize: '16px',
+            cursor: 'pointer',
             display: 'flex',
-            flexDirection: 'row',
             alignItems: 'center',
-            gap: '12px',
-            maxWidth: '300px',
-            margin: '0 auto',
+            justifyContent: 'center',
+            gap: '8px',
+            width: '100%',
+          }}
+          onClick={() => handleRazorpayPayment(applicationform)}
+        >
+          Pay ₹{applicationform.courseFee || '0'}{' '}
+          <span role="img" aria-label="lock">🔒</span>
+        </button>
+
+        <button
+          type="button"
+          style={{
+            backgroundColor: '#6c757d',
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            width: '100%',
+          }}
+          onClick={handleClose}
+        >
+          Close
+        </button>
+      </>
+    )}
+
+    {/* Show Submit/Update + Close only if Pay button is not being shown */}
+    {!(isSubmitClicked || isUpdateClicked) && (
+      <>
+        <button
+          type="submit"
+          style={{
+            backgroundColor: '#28a745',
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            width: '100%',
           }}
         >
-          {selectedBatch && (
-            <button
-              type="button"
-              style={{
-                backgroundColor: '#007bff',
-                color: '#fff',
-                border: 'none',
-                padding: '12px 20px',
-                borderRadius: '6px',
-                fontSize: '16px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                width: '100%',
-              }}
-              onClick={() => handleRazorpayPayment(applicationform)}
-            >
-              Pay ₹{selectedBatch.courseFee}{' '}
-              <span role="img" aria-label="lock">
-                🔒
-              </span>
-            </button>
-          )}
+          {applicationform ? 'Update' : 'Submit'}
+        </button>
 
-          <button
-            type="submit"
-            style={{
-              backgroundColor: '#28a745',
-              color: '#fff',
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: '6px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              width: '100%',
-            }}
-          >
-            {applicationform ? 'Update' : 'Submit'}
-          </button>
+        <button
+          type="button"
+          style={{
+            backgroundColor: '#6c757d',
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            width: '100%',
+          }}
+          onClick={handleClose}
+        >
+          Close
+        </button>
+      </>
+    )}
+  </div>
+</div>
 
-          <button
-            type="button"
-            style={{
-              backgroundColor: '#6c757d',
-              color: '#fff',
-              border: 'none',
-              padding: '12px 20px',
-              borderRadius: '6px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              width: '100%',
-            }}
-            onClick={handleClose}
-          >
-            Close
-          </button>
-        </div>
-      </div>
     </Form>
   )}
 </Formik>
