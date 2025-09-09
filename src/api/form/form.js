@@ -107,7 +107,8 @@ export const deleteFormReq = async (actionId) => {
 
 export const uploadFormFilesReq = async (formData) => {
   try {
-    const res = await authAxios.post(`${ApiKey.uploadApplicationFiles}`, formData, {
+    debugger;
+    const res = await publicAxios.post(`${ApiKey.uploadApplicationFiles}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return { error: false, data: res.data, message: res.data.message || "", errorMsg: "" };
@@ -122,10 +123,17 @@ export const uploadFormFilesReq = async (formData) => {
 
 // Download Form Files
 
-export const downloadFormFilesReq = async (formId) => {
+export const downloadFormFilesReq = async ({ id, type, filename }) => {
   try {
-    const res = await authAxios.get(`${ApiKey.downloadApplicationFiles}?id=${formId}`, { responseType: "blob" });
-    return res.data; // This will be a Blob
+    debugger;
+    // Construct URL with query parameters exactly as backend expects
+    const url = `${ApiKey.downloadApplicationFiles}?id=${id}&type=${type}${filename ? `&filename=${filename}` : ""}`;
+
+    const res = await publicAxios.get(url, {
+      responseType: "blob", // important for file download
+    });
+
+    return res; // return full response so you can get headers too
   } catch (err) {
     let error;
     if (err.response) error = err.response.data.message || "Response error";
