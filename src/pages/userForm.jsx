@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form, Field ,ErrorMessage } from 'formik';
 import { Modal, Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { loadRazorpay } from "../../src/utlis/razorpay";
 import { updateFormReq } from '../api/form/form';
+import * as Yup from 'yup';
 
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
@@ -180,6 +181,24 @@ useEffect(() => {
   applicationform?.applicationDate ? new Date(applicationform.applicationDate) : null
 );
 
+const validationSchema = Yup.object({
+  candidateName: Yup.string().required('Name is required'),
+  sex: Yup.string().required('Sex is required'),
+  fatherOrHusbandName: Yup.string().required('Father/Husband Name is required'),
+  contactAddress: Yup.string().required('Contact Address is required'),
+  mobileNumber: Yup.string().required('Mobile Number is required'),
+  dateOfBirth: Yup.date().required('Date of Birth is required'),
+  aadharNumber: Yup.string().required('Aadhaar Number is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  bloodGroup: Yup.string().required('Blood Group is required'),
+  modeOfAdmission: Yup.string().required('Mode of Admission is required'),
+  candidateStatus: Yup.string().required('Candidate Status is required'),
+  place: Yup.string().required('Place is required'), 
+  declaration: Yup.boolean().oneOf([true], 'You must accept the declaration'),
+  courseId: Yup.number().required('Course is required'),
+  batchId: Yup.number().required('Batch is required'),
+  applicationDate: Yup.date().required('Date is Required'),
+  });
 
   const prepareSubmitData = (values) => {
     const educationDetailsList = QUALIFICATIONS
@@ -330,6 +349,7 @@ useEffect(() => {
 
        <Formik
   initialValues={initialValues}
+  validationSchema={validationSchema}
   enableReinitialize
   onSubmit={async (values, { setSubmitting }) => {
     if (applicationform) {
@@ -346,39 +366,44 @@ useEffect(() => {
         <label>
           Name of Candidate <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="candidateName" required />
+        <Field type="text" name="candidateName"   maxLength={100}/>
+         <ErrorMessage name="candidateName"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Sex <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field as="select" name="sex" required>
+        <Field as="select" name="sex" >
           <option value="">Select</option>
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </Field>
+      <ErrorMessage name="sex"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Name of Father/Husband <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="fatherOrHusbandName" required />
+        <Field type="text" name="fatherOrHusbandName"   maxLength={100}/>
+        <ErrorMessage name="fatherOrHusbandName"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Contact Address <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field as="textarea" name="contactAddress" required />
+        <Field as="textarea" name="contactAddress"  maxLength={1000}/>
+        <ErrorMessage name="contactAddress"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Mobile Number <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field name="mobileNumber" type="tel" required />
+        <Field name="mobileNumber" type="tel"  maxLength={10} />
+        <ErrorMessage name="mobileNumber"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
@@ -392,12 +417,13 @@ useEffect(() => {
             setFieldValue('dateOfBirth', date);
             setFieldValue('age', calculateAge(date));
           }}
-          dateFormat="yyyy-MM-dd"
-          placeholderText="yyyy/mm/dd"
+          dateFormat="dd-MM-yyyy"
+          placeholderText="dd-mm-yyyy"
           customInput={
-            <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
+            <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
           }
         />
+        <ErrorMessage name="dateOfBirth"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
@@ -409,21 +435,24 @@ useEffect(() => {
         <label>
           Aadhaar Number <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="aadharNumber" required />
+        <Field type="text" name="aadharNumber"  maxLength={20}/>
+         <ErrorMessage name="aadharNumber"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Email ID <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field name="email" type="email" required />
+        <Field name="email" type="email"   maxLength={100}/>
+        <ErrorMessage name="email"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Blood Group <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field name="bloodGroup" type="text" required />
+        <Field name="bloodGroup" type="text"  maxLength={5} />
+        <ErrorMessage name="bloodGroup"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       {/* Qualification Details Section */}
@@ -460,6 +489,7 @@ useEffect(() => {
                     disabled={!selectedQuals.includes(qual.key)}
                     required={selectedQuals.includes(qual.key)}
                   />
+                   <ErrorMessage name="year"component="div"style={{ color: 'red', marginTop: '5px' }}/>
                 </td>
                 <td>
                   <Field
@@ -496,20 +526,21 @@ useEffect(() => {
         <label>
           Mode of Admission <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field as="select" name="modeOfAdmission" required>
+        <Field as="select" name="modeOfAdmission" >
           <option value="">Select</option>
           <option value="Advertisement">Advertisement</option>
           <option value="Friends">Friends</option>
           <option value="OldStudent">Old Student</option>
           <option value="Staff">Staff</option>
         </Field>
+        <ErrorMessage name="modeOfAdmission"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
         <label>
           Status of Candidate <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field as="select" name="candidateStatus" required>
+        <Field as="select" name="candidateStatus" >
           <option value="">Select</option>
           <option value="Student">Student</option>
           <option value="Unemployed">Unemployed</option>
@@ -517,17 +548,18 @@ useEffect(() => {
           <option value="Business">Business</option>
           <option value="SeniorCitizen">Senior Citizen</option>
         </Field>
+       <ErrorMessage name="candidateStatus"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       {values.candidateStatus === 'Employed' && (
         <>
           <div>
             <label>Working At</label>
-            <Field type="text" name="ifEmployed_WorkingAt" />
+            <Field type="text" name="ifEmployed_WorkingAt" maxLength={150} />
           </div>
           <div>
             <label>Designation</label>
-            <Field type="text" name="designation" />
+            <Field type="text" name="desgination" maxLength={20}/>
           </div>
         </>
       )}
@@ -536,15 +568,28 @@ useEffect(() => {
         <label>
           Place <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="place" required />
+        <Field type="text" name="place"  maxLength={200} />
+         <ErrorMessage name="place" component="div" style={{ color: 'red' }} />
       </div>
+ <div>
+  <label>
+    Date <span style={{ color: 'red' }}>*</span>
+  </label>
+  <DatePicker
+    selected={applicationDate}
+    onChange={(date) => {
+      setApplicationDate(date);
+      setFieldValue('applicationDate', date);
+      
+    }}
+    dateFormat="dd-MM-yyyy"
+    placeholderText="dd-mm-yyy"
+    customInput={
+      <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
+    }  />
+   <ErrorMessage name="applicationDate"component="div"style={{ color: 'red', marginTop: '5px' }}/>
+   </div>
 
-      <div>
-        <label>
-          Date <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field type="date" name="applicationDate" required />
-      </div>
 
       {/* Course Dropdown */}
       <div>
@@ -556,7 +601,7 @@ useEffect(() => {
           name="courseId"
           onChange={(e) => handleCourseChange(e.target.value, setFieldValue)}
           value={values.courseId}
-          required
+          
         >
           <option value="">Select Course</option>
           {courseList.map((course) => (
@@ -565,6 +610,7 @@ useEffect(() => {
             </option>
           ))}
         </Field>
+       <ErrorMessage name="courseId"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       <div>
@@ -576,7 +622,7 @@ useEffect(() => {
           name="batchId"
           onChange={(e) => handleBatchChange(e.target.value, setFieldValue)}
           value={values.batchId}
-          required
+          
         >
           <option value="">Select Batch</option>
           {batches.map((batch) => (
@@ -585,6 +631,7 @@ useEffect(() => {
             </option>
           ))}
         </Field>
+         <ErrorMessage name="batchId"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       {selectedBatch && (
@@ -654,10 +701,11 @@ useEffect(() => {
       {/* Declaration */}
       <div style={{ marginTop: '10px' }}>
         <label>
-          <Field type="checkbox" name="declaration" required /> I hereby declare
+          <Field type="checkbox" name="declaration"  /> I hereby declare
           that the details furnished above are correct and I will adhere to the
           rules of the Continuing Education Centre.
         </label>
+        <ErrorMessage name="declaration"component="div"style={{ color: 'red', marginTop: '5px' }}/>
       </div>
 
       {/* Buttons */}

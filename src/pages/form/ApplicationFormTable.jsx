@@ -179,6 +179,7 @@ const handlePrint = (application) => {
   };
 
   const handleDelete = (id) => {
+    debugger;
     Swal.fire({
       title: "Are you sure?",
       text: "You won’t be able to revert this!",
@@ -186,10 +187,9 @@ const handlePrint = (application) => {
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
     }).then(async(result) => {
-      if (result.isConfirmed) {
-        //setApplicationform(Applicationform.filter((applicationform) => applicationform.id !== id));
-         await deleteForm(id, dispatch);
-        Swal.fire("Deleted!", "applicationform has been deleted.", "success");
+    if (result.isConfirmed) {
+        await deleteForm(id, dispatch);
+        Swal.fire("Deleted!", "Application has been deleted.", "success");
       }
     });
   };
@@ -252,7 +252,7 @@ const handlePrint = (application) => {
                     <button className="btn-edit" onClick={() => handleEdit(applicationform)}>
                       Edit
                     </button>
-                    <button className="btn-delete" onClick={() => handleDelete(applicationform.ApplicationID)}>
+                    <button className="btn-delete" onClick={() => handleDelete(applicationform.applicationID)}>
                      Delete
                     </button>
                    
@@ -304,7 +304,7 @@ const handlePrint = (application) => {
       </button>
       <button
         className="btn-delete"
-        onClick={() => handleDelete(applicationform.id)}
+        onClick={() => handleDelete(applicationform.applicationID)}
         aria-label={`Delete ${applicationform.name} applicationform`}
       >
         Delete
