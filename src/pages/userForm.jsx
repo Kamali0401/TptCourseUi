@@ -7,9 +7,9 @@ import "./userform.css";
 import { fetchCourseListReq } from '../api/course/course';
 import {fetchBatchDropdownReq} from '../api/batch/batch';
 import { useDispatch, useSelector } from "react-redux";
-import { updateForm ,addNewForm} from '../app/redux/slice/formSlice';
+import { updateForm ,addNewForm,fetchFormList} from '../app/redux/slice/formSlice';
 import { uploadFormFilesReq,downloadFormFilesReq} from '../../src/api/form/form';
-
+import { fetchFormListReq } from '../../src/api/form/form';
 //import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -39,6 +39,7 @@ const [isUpdateClicked, setIsUpdateClicked] = useState(false);
 const [saveddata, setsaveddata] = useState(null);
 
   const applicationform = location.state?.applicationform;
+  console.log(applicationform,"applicationform" );
   //const [isPaymentDone, setIsPaymentDone] = useState(false);
     // 🔹 State for course + batch
   //const [courses, setCourses] = useState([]);
@@ -351,7 +352,8 @@ const handleRazorpayPayment = (data,courseFee) => {
   try {
     console.log(data,"data");
     console.log(courseFee,"coursefee");
-        const fee = (courseFee ?? data.courseFee ?? 0);
+     const paymentData = Array.isArray(data) ? data[0] : data;
+        const fee = (courseFee ?? paymentData.courseFee ?? 0);
  
     const options = {
       key: 'rzp_test_6pwjCwtwwp3YOu', // Razorpay test key
@@ -374,7 +376,7 @@ const handleRazorpayPayment = (data,courseFee) => {
           // Call your API to update the form/payment status
           const apiResponse = await updateFormReq({
             //...data,
-            ...data,
+            ...paymentData,
             isPaymentDone: true,
            // paymentRefereceNo: response.razorpay_payment_id,
           });
@@ -497,7 +499,16 @@ for (let [key, value] of formData.entries()) {
 
         const res = await uploadFormFilesReq(formData); // your API call
         console.log("File uploaded successfully:", res);
-      }
+         // After upload, fetch the updated application data
+     const updatedAppList = await fetchFormListReq(); // Fetch the list of all applications
+  console.log("Fetched updated applications:", updatedAppList);
+
+const applicationsArray = updatedAppList.data; // ensure this is the array
+const filteredApps = applicationsArray.filter(app => app.applicationID === applicationId);
+
+setsaveddata(filteredApps); // saveddata is now an array
+console.log("Filtered application as array:", filteredApps);
+  }
   } catch (err) {
     console.error("Error uploading file:", err);
     Swal.fire("Error", "Something went wrong while uploading the file", "error");
