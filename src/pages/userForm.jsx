@@ -139,6 +139,8 @@ useEffect(() => {
   };
 
   const handleClose = () => {
+  setIsSubmitClicked(false);
+  setIsUpdateClicked(false);
     navigate(-1); // Go back to the previous page
   };
 
@@ -334,7 +336,7 @@ const handleDownload = async (fileName, id) => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", fileName );
+    link.setAttribute("download", fileName);
  // set the original file name
     document.body.appendChild(link);
     link.click();
@@ -388,7 +390,7 @@ const handleRazorpayPayment = (data,courseFee) => {
     confirmButtonText: 'OK'
   }).then(() => {
     // Redirect to application table
-   //navigate("/main/applicationtable");
+   navigate("/main/applicationtable");
   });
         } catch (apiError) {
           console.error('API error:', apiError);
@@ -918,8 +920,7 @@ onSubmit={async (values, formikHelpers) => {
   >
     Pay ₹{selectedBatch?.courseFee || 0} 🔒
   </button>
- 
-  <button
+<button
           type="button"
           style={{
             backgroundColor: '#6c757d',
@@ -937,6 +938,7 @@ onSubmit={async (values, formikHelpers) => {
         </button>
         </>
 )}
+ 
  
 {/* Pay button for update */}
 {isUpdateClicked && !isSubmitClicked && applicationform && !applicationform.ispaymentdone && (
@@ -961,7 +963,7 @@ onSubmit={async (values, formikHelpers) => {
   >
     Pay ₹{applicationform.courseFee || '0'} 🔒
   </button>
-  <button
+<button
           type="button"
           style={{
             backgroundColor: '#6c757d',
@@ -979,6 +981,45 @@ onSubmit={async (values, formikHelpers) => {
         </button>
         </>
 )}
+   
+ 
+    {/* Show Submit/Update + Close only if Pay button is not being shown */}
+    {!(isSubmitClicked || isUpdateClicked) && (
+      <>
+        <button
+          type="submit"
+          style={{
+            backgroundColor: '#28a745',
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            width: '100%',
+          }}
+        >
+          {applicationform ? 'Update' : 'Submit'}
+        </button>
+ 
+        <button
+          type="button"
+          style={{
+            backgroundColor: '#6c757d',
+            color: '#fff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '6px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            width: '100%',
+          }}
+          onClick={handleClose}
+        >
+          Close
+        </button>
+      </>
+    )}
   </div>
 </div>
 
