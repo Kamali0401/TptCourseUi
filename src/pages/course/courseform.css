@@ -561,3 +561,9 @@ button {
 label input[type="checkbox"] {
   margin-right: 8px;
 }
+.error-message {
+  color: red;
+  font-size: 10px;
+  margin-top: 2px;   /* just a tiny gap */
+  margin-bottom: 0;
+}

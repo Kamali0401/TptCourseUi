@@ -164,10 +164,19 @@ const validationSchema = Yup.object({
   sex: Yup.string().required('Sex is required'),
   fatherOrHusbandName: Yup.string().required('Father/Husband Name is required'),
   contactAddress: Yup.string().required('Contact Address is required'),
-  mobileNumber: Yup.string().required('Mobile Number is required'),
-  dateOfBirth: Yup.date().required('Date of Birth is required'),
-  aadharNumber: Yup.string().required('Aadhaar Number is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
+mobileNumber: Yup.string()
+    .required('Mobile Number is required')
+    .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits'),
+ dateOfBirth: Yup.date().required('Date of Birth is required'),
+ aadharNumber: Yup.string()
+    .required('Aadhaar Number is required')
+    .matches(/^[0-9]{12}$/, 'Please enter your 12 digit Aadhaar number'),
+  email: Yup.string()
+    .required('Email is required')
+    .matches(
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      'Please enter a valid email address'
+    ),
   bloodGroup: Yup.string().required('Blood Group is required'),
   modeOfAdmission: Yup.string().required('Mode of Admission is required'),
   candidateStatus: Yup.string().required('Candidate Status is required'),
@@ -545,7 +554,10 @@ onSubmit={async (values, formikHelpers) => {
           Name of Candidate <span style={{ color: 'red' }}>*</span>
         </label>
         <Field type="text" name="candidateName"  maxLength={100}/>
-        <ErrorMessage name="candidateName"component="div" style={{ color: 'red', marginTop: '5px' }}
+<ErrorMessage
+  name="candidateName"
+  component="div"
+  className="error-message"
 />
 
       </div>
@@ -559,32 +571,54 @@ onSubmit={async (values, formikHelpers) => {
           <option value="Male">Male</option>
           <option value="Female">Female</option>
         </Field>
-      <ErrorMessage name="sex"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="sex"
+  component="div"
+  className="error-message"
+/>      </div>
 
       <div>
         <label>
           Name of Father/Husband <span style={{ color: 'red' }}>*</span>
         </label>
         <Field type="text" name="fatherOrHusbandName"   maxLength={100}/>
-        <ErrorMessage name="fatherOrHusbandName"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="fatherOrHusbandName"
+  component="div"
+  className="error-message"
+/>      </div>
 
       <div>
         <label>
           Contact Address <span style={{ color: 'red' }}>*</span>
         </label>
         <Field as="textarea" name="contactAddress"  maxLength={1000}/>
-        <ErrorMessage name="contactAddress"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="contactAddress"
+  component="div"
+  className="error-message"
+/>        </div>
 
-      <div>
-        <label>
-          Mobile Number <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field name="mobileNumber" type="tel"  maxLength={10} />
-        <ErrorMessage name="mobileNumber"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+ <div>
+  <label>
+    Mobile Number <span style={{ color: 'red' }}>*</span>
+  </label>
+  <Field
+    name="mobileNumber"
+    type="tel"
+    maxLength={10}
+    onInput={(e) => {
+      // Replace anything that is NOT a number with empty string
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+    }}
+  />
+  <ErrorMessage
+    name="mobileNumber"
+    component="div"
+    className="error-message"
+  />
+</div>
+
 
       <div>
     <label>
@@ -609,6 +643,7 @@ onSubmit={async (values, formikHelpers) => {
         <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
       }
     />
+    <ErrorMessage name="dateOfBirth" component="div" className="error-message" />
   </div>
 
       <div>
@@ -616,29 +651,49 @@ onSubmit={async (values, formikHelpers) => {
         <Field type="text" name="age" value={values.age} readOnly />
       </div>
 
-      <div>
-        <label>
-          Aadhaar Number <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field type="text" name="aadharNumber"  maxLength={20}/>
-         <ErrorMessage name="aadharNumber"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+   <div>
+  <label>
+    Aadhaar Number <span style={{ color: 'red' }}>*</span>
+  </label>
+  <Field
+    type="text"
+    name="aadharNumber"
+    maxLength={12}
+  />
+  <ErrorMessage
+    name="aadharNumber"
+    component="div"
+    className="error-message"
+  />
+</div>
+<div>
+  <label>
+    Email ID <span style={{ color: 'red' }}>*</span>
+  </label>
+  <Field 
+    name="email" 
+    type="email" 
+    maxLength={100} 
+    required 
+  />
+  <ErrorMessage
+    name="email"
+    component="div"
+    className="error-message"
+  />
+</div>
 
-      <div>
-        <label>
-          Email ID <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field name="email" type="email"   maxLength={100}/>
-        <ErrorMessage name="email"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
 
       <div>
         <label>
           Blood Group <span style={{ color: 'red' }}>*</span>
         </label>
         <Field name="bloodGroup" type="text"  maxLength={5} />
-        <ErrorMessage name="bloodGroup"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="bloodGroup"
+  component="div"
+  className="error-message"
+/>        </div>
 
       {/* Qualification Details Section */}
       <div className="qualification-table-container">
@@ -718,8 +773,11 @@ onSubmit={async (values, formikHelpers) => {
           <option value="OldStudent">Old Student</option>
           <option value="Staff">Staff</option>
         </Field>
-        <ErrorMessage name="modeOfAdmission"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="modeOfAdmission"
+  component="div"
+  className="error-message"
+/>        </div>
 
       <div>
         <label>
@@ -733,8 +791,11 @@ onSubmit={async (values, formikHelpers) => {
           <option value="Business">Business</option>
           <option value="SeniorCitizen">Senior Citizen</option>
         </Field>
-       <ErrorMessage name="candidateStatus"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="candidateStatus"
+  component="div"
+  className="error-message"
+/>        </div>
 
       {values.candidateStatus === 'Employed' && (
         <>
@@ -754,8 +815,11 @@ onSubmit={async (values, formikHelpers) => {
           Place <span style={{ color: 'red' }}>*</span>
         </label>
         <Field type="text" name="place"  maxLength={200} />
-         <ErrorMessage name="place" component="div" style={{ color: 'red' }} />
-      </div>
+<ErrorMessage
+  name="place"
+  component="div"
+  className="error-message"
+/>       </div>
  <div>
   <label>
     Date <span style={{ color: 'red' }}>*</span>
@@ -772,8 +836,11 @@ onSubmit={async (values, formikHelpers) => {
     customInput={
       <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
     }  />
-   <ErrorMessage name="applicationDate"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-   </div>
+<ErrorMessage
+  name="applicationDate"
+  component="div"
+  className="error-message"
+/>    </div>
 
 
       {/* Course Dropdown */}
@@ -795,8 +862,11 @@ onSubmit={async (values, formikHelpers) => {
             </option>
           ))}
         </Field>
-       <ErrorMessage name="courseId"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="courseId"
+  component="div"
+  className="error-message"
+/>       </div>
 
       <div>
         <label>
@@ -816,8 +886,11 @@ onSubmit={async (values, formikHelpers) => {
             </option>
           ))}
         </Field>
-         <ErrorMessage name="batchId"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+<ErrorMessage
+  name="batchId"
+  component="div"
+  className="error-message"
+/>       </div>
 
                 {selectedBatch && (
   <div className="batch-details-card">
@@ -877,8 +950,11 @@ onSubmit={async (values, formikHelpers) => {
     <Field type="checkbox" name="declaration"  />
     {' '}I hereby declare that the details furnished above are correct and I will adhere to the rules of the Continuing Education Centre.
   </label>
-   <ErrorMessage name="declaration"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-
+<ErrorMessage
+  name="declaration"
+  component="div"
+  className="error-message"
+/> 
 </div>
   <div style={{ marginTop: 20, textAlign: 'center' }}>
   <div

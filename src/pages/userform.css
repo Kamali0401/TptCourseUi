@@ -35,7 +35,9 @@ h2 {
 label {
   display: block;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+  margin-top: 6px;
+
   color: #1e7f63;
   font-size: 14px;
 }
@@ -378,4 +380,17 @@ textarea:focus {
 
 .submit-button:hover {
   background-color: #16614f;
+}
+input,
+select,
+textarea {
+  margin-bottom: 0 !important;   /* no gap below fields */
+}
+
+/* Style for all error messages */
+.form-wrapper .card .error-message {
+  color: red;
+  font-size: 10px;
+  margin-top: 2px;   /* just a tiny gap */
+  margin-bottom: 0;
 }

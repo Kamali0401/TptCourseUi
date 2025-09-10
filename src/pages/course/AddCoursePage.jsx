@@ -14,13 +14,16 @@ const validationSchema = Yup.object({
   courseCode: Yup.string()
     .max(10, "Course Code must be at most 10 characters")
     .required("Course Code is required"),
-  courseFee: Yup.number()
-    //.typeError("Course Fees must be a number")
+    courseFee: Yup.number()
+    .transform((value, originalValue) =>
+      originalValue === "" ? undefined : value
+    )
     .required("Course Fees is required"),
+    
+
      status: Yup.string()
-    //.oneOf(["Active", "UnActive"], "Status must be Active or UnActive") // ✅ string validation
-    .required("Status is required"),
-  // 🔹 Default false if null/undefined
+       .oneOf(["Active", "UnActive"], "Status must be Active or UnActive")
+       .required("Status is required"),
 });
 
 export default function AddCourseModal({ show, handleClose, onSubmit, course }) {
@@ -117,8 +120,8 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
       <ErrorMessage
         name="courseName"
         component="div"
-        className="error text-danger"
-      />
+        className="error-message"
+      /> 
     </div>
 
     {/* Course Code */}
@@ -132,11 +135,11 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
         className="form-control"
         maxLength={10}
       />
-      <ErrorMessage
+       <ErrorMessage
         name="courseCode"
         component="div"
-        className="error text-danger"
-      />
+        className="error-message"
+      /> 
     </div>
 
     {/* Course Fee */}
@@ -153,8 +156,8 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
       <ErrorMessage
         name="courseFee"
         component="div"
-        className="error text-danger"
-      />
+        className="error-message"
+      /> 
     </div>
 
     {/* Course Status */}
@@ -177,11 +180,11 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
       </label>
 
       {/* Error Message for Status */}
-      <ErrorMessage
+       <ErrorMessage
         name="status"
         component="div"
-        className="error text-danger"
-      />
+        className="error-message"
+      /> 
     </div>
   </Modal.Body>
 

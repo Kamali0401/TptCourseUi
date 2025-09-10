@@ -129,3 +129,9 @@ button {
   /* top: 50%;
      transform: translate(-50%, -50%); */
 }
+.error-message {
+  color: red;
+  font-size: 10px;
+  margin-top: 2px;   /* just a tiny gap */
+  margin-bottom: 0;
+}

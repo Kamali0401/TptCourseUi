@@ -26,10 +26,13 @@ const validationSchema = Yup.object({
   instructorName: Yup.string()
     .max(100, "Instructor Name must be at most 100 characters")
     .required("Instructor Name is required"),
-  totalSeats: Yup.number()
-  //  .typeError("Total Seats must be a number")
-   // .integer("Total Seats must be an integer")
-    .required("Total Seats is required"),
+ totalSeats: Yup.number()
+  .transform((value, originalValue) =>
+    originalValue === "" ? undefined : value
+  )
+  .required("Total Seats is required"),
+  //.integer("Total Seats must be an integer") // optional, if you want integers only
+
   startTime: Yup.string().required("Start Time is required"),
   endTime: Yup.string().required("End Time is required"),
    status: Yup.string()
@@ -165,13 +168,21 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
         }}
       >
         {({ values, setFieldValue, resetForm }) => (
+          useEffect(() => {
+            if (!batch) {
+              setFieldValue("availableSeats", values.totalSeats || 0);
+            }
+          }, [values.totalSeats, batch, setFieldValue]),
           <Form>
             <Modal.Body>
               <div className="mb-3">
                 <label>Batch Name <span style={{ color: "red" }}>*</span></label>
                 <Field type="text" name="batchName" className="form-control" />
-                <ErrorMessage name="batchName" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="batchName"
+        component="div"
+        className="error-message"
+      />               </div>
 
              {/* ✅ Course Name Dropdown */}
               <div className="mb-3">
@@ -184,8 +195,11 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                     </option>
                   ))}
                 </Field>
-                <ErrorMessage name="courseID" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="courseID"
+        component="div"
+        className="error-message"
+      />               </div>
 
               <div className="mb-3">
                 <label>Start Date <span style={{ color: "red" }}>*</span></label>
@@ -196,8 +210,11 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                   minDate={new Date()}
                   placeholderText="Select Start Date"
                 />
-                <ErrorMessage name="startDate" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="startDate"
+        component="div"
+        className="error-message"
+      />               </div>
 
               <div className="mb-3">
                 <label>End Date <span style={{ color: "red" }}>*</span></label>
@@ -208,36 +225,43 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                   className="form-control"
                   placeholderText="Select End Date"
                 />
-                <ErrorMessage name="endDate" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="endDate"
+        component="div"
+        className="error-message"
+      />               </div>
               <div className="mb-3">
                 <label>Total Seats <span style={{ color: "red" }}>*</span></label>
                 <Field type="number" name="totalSeats" className="form-control" />
-                <ErrorMessage name="totalSeats" component="div" className="error text-danger" />
-              </div>
-              <div className="mb-3">
-                <label>Available Seats <span style={{ color: "red" }}>*</span></label>
-               {/* <Field type="number" name="availableSeats" className="form-control"  readOnly />*/}
-               <Field
-  type="number"
-  name="availableSeats"
-  className="form-control"
-  readOnly
-  onChange={(e) => {
-    const value = e.target.value;
-    setFieldValue("totalSeats", value);
-    if (!batch) {
-      // Only auto-update availableSeats when adding new batch
-      setFieldValue("availableSeats", value);
-    }
-  }} />
-              </div>
+ <ErrorMessage
+        name="totalSeats"
+        component="div"
+        className="error-message"
+      />               </div>
+               <div className="mb-3">
+        <label>Available Seats</label>
+        <Field
+          type="number"
+          name="availableSeats"
+          className="form-control"
+          readOnly
+        />
+         <ErrorMessage
+        name="availableSeats"
+        component="div"
+        className="error-message"
+      /> 
+      </div>
+
               
               <div className="mb-3">
                 <label>Instructor Name <span style={{ color: "red" }}>*</span></label>
                 <Field type="text" name="instructorName" className="form-control" />
-                <ErrorMessage name="instructorName" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="instructorName"
+        component="div"
+        className="error-message"
+      />               </div>
 
               <div className="mb-3">
                 <label>Start Time <span style={{ color: "red" }}>*</span></label>
@@ -252,8 +276,11 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                    // style: { textAlign: "center" },
                   }}
                 />
-                <ErrorMessage name="startTime" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="startTime"
+        component="div"
+        className="error-message"
+      />               </div>
 
               <div className="mb-3">
                 <label>End Time <span style={{ color: "red" }}>*</span></label>
@@ -268,8 +295,11 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                    // style: { textAlign: "center" },
                   }}
                 />
-                <ErrorMessage name="endTime" component="div" className="error text-danger" />
-              </div>
+ <ErrorMessage
+        name="endTime"
+        component="div"
+        className="error-message"
+      />               </div>
               <div className="mb-3 form-check">
                     <Field name="status">
                       {({ field, form }) => (
@@ -289,11 +319,11 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                     </label>
               
                     {/* Error Message for Status */}
-                    <ErrorMessage
-                      name="status"
-                      component="div"
-                      className="error text-danger"
-                    />
+                   <ErrorMessage
+                          name="status"
+                          component="div"
+                          className="error-message"
+                        /> 
                   </div>
             </Modal.Body>
 
