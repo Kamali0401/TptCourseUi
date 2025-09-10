@@ -250,6 +250,7 @@ useEffect(() => {
 
       {/* Modal */}
       <AddBatchPage
+       key={selectedBatch ? selectedBatch.batchID : "new"}
         show={showModal}
         handleClose={() => setShowModal(false)}
         onSubmit={handleModalSubmit}

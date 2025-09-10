@@ -172,6 +172,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
             if (!batch) {
               setFieldValue("availableSeats", values.totalSeats || 0);
             }
+            
           }, [values.totalSeats, batch, setFieldValue]),
           <Form>
             <Modal.Body>
