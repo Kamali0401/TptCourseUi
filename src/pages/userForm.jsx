@@ -585,24 +585,29 @@ onSubmit={async (values, formikHelpers) => {
       </div>
 
       <div>
-        <label>
-          Date of Birth <span style={{ color: 'red' }}>*</span>
-        </label>
-        <DatePicker
-          selected={dateOfBirth}
-          onChange={(date) => {
-            setDob(date);
-            setFieldValue('dateOfBirth', date);
-            setFieldValue('age', calculateAge(date));
-          }}
-          dateFormat="dd-MM-yyyy"
-          placeholderText="dd-mm-yyyy"
-          customInput={
-            <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
-          }
-        />
-        <ErrorMessage name="dateOfBirth"component="div"style={{ color: 'red', marginTop: '5px' }}/>
-      </div>
+    <label>
+      Date of Birth <span style={{ color: 'red' }}>*</span>
+    </label>
+    <DatePicker
+  selected={values.dateOfBirth}
+  onChange={(date) => {
+    setDob(date);
+    setFieldValue('dateOfBirth', date); 
+    setFieldValue('age', calculateAge(date));
+  }}
+
+
+      dateFormat="yyyy-MM-dd"
+      placeholderText="yyyy/mm/dd"
+      showYearDropdown
+      yearDropdownItemNumber={100}
+      scrollableYearDropdown
+      maxDate={new Date()}
+      customInput={
+        <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
+      }
+    />
+  </div>
 
       <div>
         <label>Age</label>
