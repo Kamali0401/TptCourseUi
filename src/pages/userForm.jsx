@@ -684,8 +684,7 @@ onSubmit={async (values, formikHelpers) => {
   <Field 
     name="email" 
     type="email" 
-    maxLength={100} 
-    required 
+    maxLength={100}  
   />
   <ErrorMessage
     name="email"
