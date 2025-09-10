@@ -39,7 +39,7 @@ export const addNewForm = async (data, dispatch) => {
   try {
     debugger;
     dispatch(setLoading()); // Set loading before making the API request
-     const res = await addNewFormReq(data); // Call API to add a Form
+   const res =   await addNewFormReq(data); // Call API to add a Form
     await dispatch(fetchFormList()); // Fetch updated list of Forms
   
     dispatch(setError()); // Handle error if API fails
@@ -102,7 +102,7 @@ export const deleteForm = async (data, dispatch) => {
 // Action to fetch the Form list
 export const fetchFormList = () => async (dispatch) => {
   try {
-    
+    debugger;
     dispatch(setLoading()); // Set loading before making the API request
     const res = await fetchFormListReq(); // Fetch Form list from API
     dispatch(addData(res.data));
