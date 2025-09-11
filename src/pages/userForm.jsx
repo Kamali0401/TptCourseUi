@@ -161,27 +161,39 @@ useEffect(() => {
 );
 
 const validationSchema = Yup.object({
-  candidateName: Yup.string().required('Name is required'),
+  candidateName: Yup.string().required('Name is required').matches(/^[A-Za-z .-]+$/),
   sex: Yup.string().required('Sex is required'),
-  fatherOrHusbandName: Yup.string().required('Father/Husband Name is required'),
-  contactAddress: Yup.string().required('Contact Address is required'),
+  fatherOrHusbandName: Yup.string().required('Father/Husband Name is required').matches(/^[A-Za-z .-]+$/),
+  contactAddress: Yup.string().required('Contact Address is required').matches(/^[A-Za-z0-9\s.,#/-]+$/),
 mobileNumber: Yup.string()
     .required('Mobile Number is required')
     .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits'),
- dateOfBirth: Yup.date().required('Date of Birth is required'),
+ dateOfBirth: Yup.date().required('Date of Birth is required')
+ .min(new Date(1900, 0, 1), 'Year must be 1900 or later')
+ .max(new Date(), 'Date cannot be in the future') .test(
+      'max-age',
+      'Age cannot be more than 90 years',
+      function (value) {
+        if (!value) return false;
+        const today = new Date();
+        const ninetyYearsAgo = new Date(
+          today.getFullYear() - 80,
+          today.getMonth(),
+          today.getDate()
+        );
+        return value >= ninetyYearsAgo;
+      }
+    ),
  aadharNumber: Yup.string()
     .required('Aadhaar Number is required')
     .matches(/^[0-9]{12}$/, 'Please enter your 12 digit Aadhaar number'),
   email: Yup.string()
     .required('Email is required')
-    .matches(
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      'Please enter a valid email address'
-    ),
+    .matches(/^[A-Za-z0-9._%+-]+@gmail\.(com|in)$/,'Please enter a valid email address'),
   bloodGroup: Yup.string().required('Blood Group is required'),
   modeOfAdmission: Yup.string().required('Mode of Admission is required'),
   candidateStatus: Yup.string().required('Candidate Status is required'),
-  place: Yup.string().required('Place is required'), 
+  place: Yup.string().required('Place is required') .matches(/^[A-Za-z .-]+$/),
   declaration: Yup.boolean().oneOf([true], 'You must accept the declaration'),
   courseId: Yup.number().required('Course is required'),
   batchId: Yup.number().required('Batch is required'),
@@ -660,14 +672,13 @@ onSubmit={async (values, formikHelpers) => {
     setFieldValue('dateOfBirth', date); 
     setFieldValue('age', calculateAge(date));
   }}
-
-
       dateFormat="yyyy-MM-dd"
-      placeholderText="yyyy/mm/dd"
+      placeholderText="yyyy-mm-dd"
       showYearDropdown
       yearDropdownItemNumber={100}
       scrollableYearDropdown
-      maxDate={new Date()}
+      minDate={new Date(1900, 0, 1)}   
+      maxDate={new Date()}            
       customInput={
         <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
       }
@@ -712,16 +723,28 @@ onSubmit={async (values, formikHelpers) => {
 </div>
 
 
-      <div>
-        <label>
-          Blood Group <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field name="bloodGroup" type="text"  maxLength={5} />
-<ErrorMessage
-  name="bloodGroup"
-  component="div"
-  className="error-message"
-/>        </div>
+ <div>
+  <label>
+    Blood Group <span style={{ color: 'red' }}>*</span>
+  </label>
+  <Field as="select" name="bloodGroup">
+    <option value="">Select Blood Group</option>
+    <option value="A+">A+</option>
+    <option value="A-">A-</option>
+    <option value="B+">B+</option>
+    <option value="B-">B-</option>
+    <option value="O+">O+</option>
+    <option value="O-">O-</option>
+    <option value="AB+">AB+</option>
+    <option value="AB-">AB-</option>
+  </Field>
+  <ErrorMessage
+    name="bloodGroup"
+    component="div"
+    className="error-message"
+  />
+</div>
+
 
       {/* Qualification Details Section */}
       <div className="qualification-table-container">
@@ -751,12 +774,16 @@ onSubmit={async (values, formikHelpers) => {
                   </label>
                 </td>
                 <td>
-                  <Field
-                    name={`${qual.key}.year`}
-                    type="number"
-                    disabled={!selectedQuals.includes(qual.key)}
-                    required={selectedQuals.includes(qual.key)}
-                  />
+              <Field
+                name={`${qual.key}.year`}
+                type="number"
+                disabled={!selectedQuals.includes(qual.key)}
+                required={selectedQuals.includes(qual.key)}
+                onInput={(e) => {
+                e.target.value = e.target.value.slice(0, 4);
+                }}
+               />                                
+
                   
                 </td>
                 <td>
@@ -765,6 +792,10 @@ onSubmit={async (values, formikHelpers) => {
                     type="number"
                     disabled={!selectedQuals.includes(qual.key)}
                     required={selectedQuals.includes(qual.key)}
+                    onInput={(e) => {
+                    e.target.value = e.target.value.slice(0, 3);
+                    
+                    }}
                   />
                 </td>
                 <td>
@@ -773,6 +804,7 @@ onSubmit={async (values, formikHelpers) => {
                     name={`${qual.key}.institution`}
                     disabled={!selectedQuals.includes(qual.key)}
                     required={selectedQuals.includes(qual.key)}
+                    maxLength={500}
                     style={{
                       height: '41px',
                       padding: '8px',
@@ -782,7 +814,21 @@ onSubmit={async (values, formikHelpers) => {
                       resize: 'vertical',
                       minHeight: '0px',
                     }}
-                  />
+   onInput={(e) => {
+    // Remove anything that is not A-Z, a-z, space, dot, or hyphen
+    e.target.value = e.target.value.replace(/[^A-Za-z0-9 ,.-]/g, '');
+  }}
+  onBlur={(e) => {
+    const value = e.target.value;
+    const errorDiv = document.getElementById(`${qual.key}-institution-error`);
+    if (!value) {
+      errorDiv.textContent = 'Institution Name is required';
+    } else {
+      errorDiv.textContent = '';
+    }
+  }}
+/>
+<div id={`${qual.key}-institution-error`} className="error-message"></div>
                 </td>
               </tr>
             ))}
@@ -842,7 +888,7 @@ onSubmit={async (values, formikHelpers) => {
         <label>
           Place <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="place"  maxLength={200} />
+        <Field type="text" name="place"  maxLength={100} />
 <ErrorMessage
   name="place"
   component="div"
@@ -857,10 +903,11 @@ onSubmit={async (values, formikHelpers) => {
     onChange={(date) => {
       setApplicationDate(date);
       setFieldValue('applicationDate', date);
-      
     }}
     dateFormat="dd-MM-yyyy"
     placeholderText="dd-mm-yyy"
+    minDate={new Date()} 
+    maxDate={new Date()} 
     customInput={
       <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
     }  />

@@ -15,8 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCourseListReq} from "../../api/course/course";
 const validationSchema = Yup.object({
   batchName: Yup.string()
-    .max(100, "Batch Name must be at most 100 characters")
-    .required("Batch Name is required"),
+  .matches(/^[A-Za-z0-9 .-]+$/, "Batch Name can only contain letters, numbers, space, dot, hyphen")
+  .max(100, "Batch Name must be at most 100 characters")
+  .required("Batch Name is required"),
 //  courseName: Yup.string().required("Course Name is required"),
  courseID: Yup.string().required("Course is required"), // 🔹 use courseID
   startDate: Yup.date().required("Start Date is required"),
@@ -239,11 +240,19 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
         name="endDate"
         component="div"
         className="error-message"
-      />               </div>
-              <div className="mb-3">
-                <label>Total Seats <span style={{ color: "red" }}>*</span></label>
-                <Field type="number" name="totalSeats" className="form-control" />
- <ErrorMessage
+      />               
+      </div>
+
+        <div className="mb-3">
+        <label>Total Seats <span style={{ color: "red" }}>*</span></label>
+        <Field type="number" name="totalSeats" className="form-control"
+          onInput={(e) => {
+    // Allow only first 3 digits
+    e.target.value = e.target.value.slice(0, 3);
+  }}
+        />
+        
+       <ErrorMessage
         name="totalSeats"
         component="div"
         className="error-message"
