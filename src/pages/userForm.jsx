@@ -7,14 +7,14 @@ import "./userform.css";
 import { fetchCourseListReq } from '../api/course/course';
 import {fetchBatchDropdownReq} from '../api/batch/batch';
 import { useDispatch, useSelector } from "react-redux";
-import { updateForm ,addNewForm,fetchFormList} from '../app/redux/slice/formSlice';
+import { updateForm,updatePaymentForm ,addNewForm,fetchFormList} from '../app/redux/slice/formSlice';
 import { uploadFormFilesReq,downloadFormFilesReq} from '../../src/api/form/form';
 import { fetchFormListReq } from '../../src/api/form/form';
 //import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { loadRazorpay } from "../../src/utlis/razorpay"; // Adjust path accordingly
-import { updateFormReq } from '../api/form/form';
+import { updatePaymentFormReq} from '../api/form/form';
 import * as Yup from 'yup';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
@@ -170,27 +170,39 @@ useEffect(() => {
 );
 
 const validationSchema = Yup.object({
-  candidateName: Yup.string().required('Name is required'),
+  candidateName: Yup.string().required('Name is required').matches(/^[A-Za-z .-]+$/),
   sex: Yup.string().required('Sex is required'),
-  fatherOrHusbandName: Yup.string().required('Father/Husband Name is required'),
-  contactAddress: Yup.string().required('Contact Address is required'),
+  fatherOrHusbandName: Yup.string().required('Father/Husband Name is required').matches(/^[A-Za-z .-]+$/),
+  contactAddress: Yup.string().required('Contact Address is required').matches(/^[A-Za-z0-9\s.,#/-]+$/),
 mobileNumber: Yup.string()
     .required('Mobile Number is required')
     .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits'),
- dateOfBirth: Yup.date().required('Date of Birth is required'),
+ dateOfBirth: Yup.date().required('Date of Birth is required')
+ .min(new Date(1900, 0, 1), 'Year must be 1900 or later')
+ .max(new Date(), 'Date cannot be in the future') .test(
+      'max-age',
+      'Age cannot be more than 90 years',
+      function (value) {
+        if (!value) return false;
+        const today = new Date();
+        const ninetyYearsAgo = new Date(
+          today.getFullYear() - 80,
+          today.getMonth(),
+          today.getDate()
+        );
+        return value >= ninetyYearsAgo;
+      }
+    ),
  aadharNumber: Yup.string()
     .required('Aadhaar Number is required')
     .matches(/^[0-9]{12}$/, 'Please enter your 12 digit Aadhaar number'),
   email: Yup.string()
     .required('Email is required')
-    .matches(
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-      'Please enter a valid email address'
-    ),
+    .matches(/^[A-Za-z0-9._%+-]+@gmail\.(com|in)$/,'Please enter a valid email address'),
   bloodGroup: Yup.string().required('Blood Group is required'),
   modeOfAdmission: Yup.string().required('Mode of Admission is required'),
   candidateStatus: Yup.string().required('Candidate Status is required'),
-  place: Yup.string().required('Place is required'), 
+  place: Yup.string().required('Place is required') .matches(/^[A-Za-z .-]+$/),
   declaration: Yup.boolean().oneOf([true], 'You must accept the declaration'),
   courseId: Yup.number().required('Course is required'),
   batchId: Yup.number().required('Batch is required'),
@@ -366,55 +378,73 @@ const handleDownload = async (fileName, id) => {
   }
 };
 
-const handleRazorpayPayment = (data,courseFee) => {
+const handleRazorpayPayment = (data, courseFee) => {
   try {
-    console.log(data,"data");
-    console.log(courseFee,"coursefee");
-     const paymentData = Array.isArray(data) ? data[0] : data;
-        const fee = (courseFee ?? paymentData.courseFee ?? 0);
- 
+    console.log(data, "data");
+    console.log(courseFee, "courseFee");
+
+    const paymentData = Array.isArray(data) ? data[0] : data;
+    const fee = courseFee ?? paymentData.courseFee ?? 0;
+
     const options = {
       key: 'rzp_test_6pwjCwtwwp3YOu', // Razorpay test key
-      amount:(fee * 100).toFixed(0), // in paise
+      amount: (fee * 100).toFixed(0), // Amount in paise
       currency: 'INR',
       name: 'Thiagarajar Polytechnic College',
       description: 'Course Payment',
       prefill: {
-        contact: '0000000000',
-        name: 'Admin',
+        contact: paymentData.contactNumber || '0000000000',
+        name: paymentData.name || 'Admin',
       },
       theme: { color: '#8B5CF6' },
       handler: async function (response) {
-        // Payment succeeded
-        console.log('Payment ID:', response.razorpay_payment_id);
- 
+        console.log('Payment Response:', response);
+
         try {
           debugger;
-         
-          // Call your API to update the form/payment status
-          const apiResponse = await updateFormReq({
-            //...data,
-            ...paymentData,
-            isPaymentDone: true,
-           // paymentRefereceNo: response.razorpay_payment_id,
-          });
-        
+
+          // Determine payment success or failure
+          const isPaymentSuccess = !!response.razorpay_payment_id;
+          const paymentStatus = isPaymentSuccess ? 'Success' : 'Failed';
+          const data = {
+            ApplicationID: paymentData.applicationID,
+            PaymentResponse: JSON.stringify(response), // Store entire response as JSON
+            Status: paymentStatus,
+            Amount: fee,
+            CreatedBy: paymentData.createdBy,
+            CreatedDate: new Date(),
+            isPaymentDone: isPaymentSuccess // true if success, false if failure
+          };
+
+          // Call API to update the payment status
+          const apiResponse = await updatePaymentFormReq(data);
           console.log('Form updated successfully', apiResponse.data);
- 
-          // Redirect after 10 seconds
-         // Show success alert, then redirect on clicking OK
-  Swal.fire({
-    title: 'Success',
-    text: 'Payment successful!',
-    icon: 'success',
-    confirmButtonText: 'OK'
-  }).then(() => {
-    if (admin === "Admin") {
-             navigate("/main/applicationtable"); // Admin dashboard
-            } else {
-              navigate("/payment-success"); // Other users' page
-            }
-  });
+
+          if (isPaymentSuccess) {
+            // Show success message and redirect
+            Swal.fire({
+              title: 'Success',
+              text: 'Payment successful!',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              if(admin==="Admin"){
+ navigate("/main/applicationtable");
+              } else{
+               navigate("/payment-success");  
+              }
+             
+            });
+          } else {
+            // Show failure message
+            Swal.fire({
+              title: 'Payment Failed',
+              text: 'The payment could not be processed. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+
         } catch (apiError) {
           console.error('API error:', apiError);
           Swal.fire('Error', 'Payment succeeded but updating form failed', 'error');
@@ -426,15 +456,17 @@ const handleRazorpayPayment = (data,courseFee) => {
         },
       },
     };
- 
+
     // Open Razorpay checkout
     const rzp = new window.Razorpay(options);
     rzp.open();
+
   } catch (error) {
     console.error('Payment initiation error:', error);
     Swal.fire('Error', 'Payment initiation failed', 'error');
   }
 };
+
 // 1️⃣ Save form data first
 const handleSave = async (values, formikHelpers) => {
   const { setSubmitting } = formikHelpers;
@@ -661,14 +693,13 @@ onSubmit={async (values, formikHelpers) => {
     setFieldValue('dateOfBirth', date); 
     setFieldValue('age', calculateAge(date));
   }}
-
-
       dateFormat="yyyy-MM-dd"
-      placeholderText="yyyy/mm/dd"
+      placeholderText="yyyy-mm-dd"
       showYearDropdown
       yearDropdownItemNumber={100}
       scrollableYearDropdown
-      maxDate={new Date()}
+      minDate={new Date(1900, 0, 1)}   
+      maxDate={new Date()}            
       customInput={
         <input type="text" className="text-input" placeholder="yyyy/mm/dd" />
       }
@@ -713,16 +744,28 @@ onSubmit={async (values, formikHelpers) => {
 </div>
 
 
-      <div>
-        <label>
-          Blood Group <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field name="bloodGroup" type="text"  maxLength={5} />
-<ErrorMessage
-  name="bloodGroup"
-  component="div"
-  className="error-message"
-/>        </div>
+ <div>
+  <label>
+    Blood Group <span style={{ color: 'red' }}>*</span>
+  </label>
+  <Field as="select" name="bloodGroup">
+    <option value="">Select Blood Group</option>
+    <option value="A+">A+</option>
+    <option value="A-">A-</option>
+    <option value="B+">B+</option>
+    <option value="B-">B-</option>
+    <option value="O+">O+</option>
+    <option value="O-">O-</option>
+    <option value="AB+">AB+</option>
+    <option value="AB-">AB-</option>
+  </Field>
+  <ErrorMessage
+    name="bloodGroup"
+    component="div"
+    className="error-message"
+  />
+</div>
+
 
       {/* Qualification Details Section */}
       <div className="qualification-table-container">
@@ -752,12 +795,16 @@ onSubmit={async (values, formikHelpers) => {
                   </label>
                 </td>
                 <td>
-                  <Field
-                    name={`${qual.key}.year`}
-                    type="number"
-                    disabled={!selectedQuals.includes(qual.key)}
-                    required={selectedQuals.includes(qual.key)}
-                  />
+              <Field
+                name={`${qual.key}.year`}
+                type="number"
+                disabled={!selectedQuals.includes(qual.key)}
+                required={selectedQuals.includes(qual.key)}
+                onInput={(e) => {
+                e.target.value = e.target.value.slice(0, 4);
+                }}
+               />                                
+
                   
                 </td>
                 <td>
@@ -766,6 +813,10 @@ onSubmit={async (values, formikHelpers) => {
                     type="number"
                     disabled={!selectedQuals.includes(qual.key)}
                     required={selectedQuals.includes(qual.key)}
+                    onInput={(e) => {
+                    e.target.value = e.target.value.slice(0, 3);
+                    
+                    }}
                   />
                 </td>
                 <td>
@@ -774,6 +825,7 @@ onSubmit={async (values, formikHelpers) => {
                     name={`${qual.key}.institution`}
                     disabled={!selectedQuals.includes(qual.key)}
                     required={selectedQuals.includes(qual.key)}
+                    maxLength={500}
                     style={{
                       height: '41px',
                       padding: '8px',
@@ -783,7 +835,21 @@ onSubmit={async (values, formikHelpers) => {
                       resize: 'vertical',
                       minHeight: '0px',
                     }}
-                  />
+   onInput={(e) => {
+    // Remove anything that is not A-Z, a-z, space, dot, or hyphen
+    e.target.value = e.target.value.replace(/[^A-Za-z0-9 ,.-]/g, '');
+  }}
+  onBlur={(e) => {
+    const value = e.target.value;
+    const errorDiv = document.getElementById(`${qual.key}-institution-error`);
+    if (!value) {
+      errorDiv.textContent = 'Institution Name is required';
+    } else {
+      errorDiv.textContent = '';
+    }
+  }}
+/>
+<div id={`${qual.key}-institution-error`} className="error-message"></div>
                 </td>
               </tr>
             ))}
@@ -843,7 +909,7 @@ onSubmit={async (values, formikHelpers) => {
         <label>
           Place <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="place"  maxLength={200} />
+        <Field type="text" name="place"  maxLength={100} />
 <ErrorMessage
   name="place"
   component="div"
@@ -858,10 +924,11 @@ onSubmit={async (values, formikHelpers) => {
     onChange={(date) => {
       setApplicationDate(date);
       setFieldValue('applicationDate', date);
-      
     }}
     dateFormat="dd-MM-yyyy"
     placeholderText="dd-mm-yyy"
+    minDate={new Date()} 
+    maxDate={new Date()} 
     customInput={
       <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
     }  />

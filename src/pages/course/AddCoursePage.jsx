@@ -9,21 +9,29 @@ import { useDispatch } from "react-redux";
 // Validation Schema
 const validationSchema = Yup.object({
   courseName: Yup.string()
+    .matches(
+      /^[A-Za-z0-9 .-]+$/,
+      "Course Name can only contain letters, numbers, spaces, dot and hyphen"
+    )
     .max(100, "Course Name must be at most 100 characters")
     .required("Course Name is required"),
+
   courseCode: Yup.string()
+    .matches(
+      /^[A-Za-z0-9_-]+$/,
+      "Course Code can only contain letters, numbers, hyphen or underscore"
+    )
     .max(10, "Course Code must be at most 10 characters")
     .required("Course Code is required"),
-    courseFee: Yup.number()
-    .transform((value, originalValue) =>
-      originalValue === "" ? undefined : value
-    )
-    .required("Course Fees is required"),
-    
 
-     status: Yup.string()
-       .oneOf(["Active", "UnActive"], "Status must be Active or UnActive")
-       .required("Status is required"),
+  courseFee: Yup.number()
+    .typeError("Course Fee must be a number")
+    .positive("Course Fee must be positive")
+    .required("Course Fee is required"),
+
+  status: Yup.string()
+    .oneOf(["Active", "UnActive"], "Status must be Active or UnActive")
+    .required("Status is required"),
 });
 
 export default function AddCourseModal({ show, handleClose, onSubmit, course }) {

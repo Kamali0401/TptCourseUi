@@ -5,6 +5,7 @@ import {
   deleteFormReq,
   fetchFormListReq,
   //updateFormReq,
+  updatePaymentFormReq,
   updateFormReq,
 } from "../../../api/form/form";
 
@@ -37,7 +38,6 @@ export default FormSlice.reducer;
 // Action to add a new Form
 export const addNewForm = async (data, dispatch) => {
   try {
-    debugger;
     dispatch(setLoading()); // Set loading before making the API request
    const res =   await addNewFormReq(data); // Call API to add a Form
     await dispatch(fetchFormList()); // Fetch updated list of Forms
@@ -79,7 +79,25 @@ export const updateForm = async (data, dispatch) => {
     }
   };
   
-
+export const updatePaymentForm = async (data, dispatch) => {
+  try {
+    dispatch(setLoading()); // Set loading before making the API request
+   const res = await updatePaymentFormReq(data); // Call API to update Form
+    await dispatch(fetchFormList()); // Fetch updated list of Forms
+   Swal.fire({
+        text: "Payment updated successfully!",
+        icon: "success",
+      });
+       return Array.isArray(res.data) ? res.data : [res.data];
+    } catch (error) {
+      dispatch(setError()); // Handle error if API fails
+      Swal.fire({
+        text: "Error! Try Again!",
+        icon: "error",
+      });
+      throw error; // Handle or throw the error to be handled elsewhere
+    }
+  };
 // Action to delete a Form
 export const deleteForm = async (data, dispatch) => {
   try {
