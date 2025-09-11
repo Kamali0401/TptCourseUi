@@ -3,7 +3,7 @@ import { FaBars, FaPhoneAlt, FaPowerOff } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";   // ⬅️ import navigate hook
 import "./Header.css";
 import Sidebar from "../../components/navigation/navigation";
-
+import logo from "../../assets/logo-bg.png";
 export default function Header() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();  // ⬅️ create navigate instance
@@ -23,8 +23,14 @@ export default function Header() {
               className="menu-icon"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             />
-          </div>
 
+            <img
+      src={logo} 
+      alt="Thiagarajar Polytechnic College Logo"
+      style={{ height: '60px', width: 'auto' }}
+    />
+          </div>
+            
           <div className="brand-info">
             <h2>THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636005</h2>
             <h3>CONTINUING EDUCATION CENTRE</h3>

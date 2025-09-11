@@ -8,6 +8,7 @@ import BatchTablePage from "../../pages/Batch/BatchTable.jsx";
 import BatchDetails from "../../pages/Batch/AddBatchModal.jsx";
 import ApplicationFormTablePage from "../../pages/form/ApplicationFormTable.jsx";
 import UserForm from "../../pages/userForm.jsx";
+import Sucess from "../../pages/paymentsuccess.jsx";
 import Login from "../../pages/login/login.jsx";
 import { routePath as RP } from "./routhpath";
 import ReportFilterPage from "../../pages/Report/Reporttable.jsx";
@@ -34,6 +35,7 @@ const App = () => {
           <Route path={RP.Reporttable} element={<ReportFilterPage/>} />
           
         </Route>
+         <Route path={RP.success} element={<Sucess />} />
       </Routes>
     </Router>
   );

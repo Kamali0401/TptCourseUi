@@ -50,11 +50,20 @@ const [saveddata, setsaveddata] = useState(null);
 
    const [courseList, setCourseList] = useState([]);
       console.log(courseList,"courseList")
+
+      const [admin, setAdmin] = useState(null);
+
+    
+
       // Fetch courses when modal opens
     useEffect(() => {
       const loadCourses = async () => {
         try {
           debugger;
+            const storedAdmin =(localStorage.getItem("role"));
+        if (storedAdmin) {
+            setAdmin(storedAdmin);
+        }
           const response = await fetchCourseListReq(); // 🔹 call API
           if (response) {
             setCourseList(response.data); // 🔹 store in state
@@ -400,8 +409,11 @@ const handleRazorpayPayment = (data,courseFee) => {
     icon: 'success',
     confirmButtonText: 'OK'
   }).then(() => {
-    // Redirect to application table
-   navigate("/main/applicationtable");
+    if (admin === "Admin") {
+             navigate("/main/applicationtable"); // Admin dashboard
+            } else {
+              navigate("/payment-success"); // Other users' page
+            }
   });
         } catch (apiError) {
           console.error('API error:', apiError);
@@ -531,9 +543,16 @@ console.log("Filtered application as array:", filteredApps);
     <div className="form-wrapper">
       <div className="card">
         <div className="form-header">
-          <button type="button" className="close-icon" onClick={handleClose} aria-label="Close">
-            &times;
-          </button>
+          {admin === "Admin" && (
+    <button
+      type="button"
+      className="close-icon"
+      onClick={handleClose}
+      aria-label="Close"
+    >
+      &times;
+    </button>
+  )}
           <h2>THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636005</h2>
           <h3>CONTINUING EDUCATION CENTRE</h3>
           <p>Phone: (0427) 2446219, 4099303 | Email: <a href="mailto:ciicptptc@gmail.com">ciicptptc@gmail.com</a></p>
@@ -1006,6 +1025,7 @@ onSubmit={async (values, formikHelpers) => {
   >
     Pay ₹{selectedBatch?.courseFee || 0} 🔒
   </button>
+   {admin === "Admin" && (
 <button
           type="button"
           style={{
@@ -1022,6 +1042,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           Close
         </button>
+   )}
         </>
 )}
  
@@ -1049,6 +1070,7 @@ onSubmit={async (values, formikHelpers) => {
   >
     Pay ₹{applicationform.courseFee || '0'} 🔒
   </button>
+   {admin === "Admin" && (
 <button
           type="button"
           style={{
@@ -1065,6 +1087,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           Close
         </button>
+   )}
         </>
 )}
    
@@ -1087,7 +1110,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           {applicationform ? 'Update' : 'Submit'}
         </button>
- 
+  {admin === "Admin" && (
         <button
           type="button"
           style={{
@@ -1104,6 +1127,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           Close
         </button>
+  )}
       </>
     )}
   </div>
@@ -1115,6 +1139,8 @@ onSubmit={async (values, formikHelpers) => {
     </Formik>
     </div>
     </div>
+
+    
   );
 };
 
