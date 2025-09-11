@@ -10,7 +10,7 @@ export const routePath = {
     form:"form",
     batch:"batch",
     batchtable:"batchtable",
-applicationtable:"applicationtable",
-  studentApplicationForm:"studentApplicationForm"
-  
+    applicationtable:"applicationtable",
+    studentApplicationForm:"studentApplicationForm",
+    Reporttable:"Reporttable"
   };

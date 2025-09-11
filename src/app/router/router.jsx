@@ -10,6 +10,7 @@ import ApplicationFormTablePage from "../../pages/form/ApplicationFormTable.jsx"
 import UserForm from "../../pages/userForm.jsx";
 import Login from "../../pages/login/login.jsx";
 import { routePath as RP } from "./routhpath";
+import ReportFilterPage from "../../pages/Report/Reporttable.jsx";
 
 const App = () => {
   return (
@@ -21,7 +22,7 @@ const App = () => {
         {/* Standalone Login Page */}
         <Route path={RP.login} element={<Login />} />
 
-        {/* Protected/Main Routes */}
+        {/* Protected/Main Route */}
         <Route path={RP.main} element={<RootLayout />}>
           <Route path={RP.form} element={<AddApplicationFormPage />} />
           <Route path={RP.coursetable} element={<CourseTablePage />} />
@@ -30,6 +31,8 @@ const App = () => {
           <Route path={RP.batch} element={<BatchDetails />} />
           <Route path={RP.applicationtable} element={<ApplicationFormTablePage />} />
           <Route path={RP.studentApplicationForm} element={<UserForm />} />
+          <Route path={RP.Reporttable} element={<ReportFilterPage/>} />
+          
         </Route>
       </Routes>
     </Router>
