@@ -30,9 +30,13 @@ const Sidebar = ({ isOpen, onClose }) => {
         break;
       case "Form":
         path = RP.applicationtable;
-        break;
+      break;
+      case "Report":   
+       path = RP.Reporttable; 
+      break;
       default:
         path = "/";
+      
     }
 
     setActiveItem(item);
@@ -102,6 +106,11 @@ const Sidebar = ({ isOpen, onClose }) => {
               Form
             </NavItem>
           )}
+          <NavItem
+          className={activeItem === "Report" ? "active" : ""}
+          onClick={() => handleNavigation("Report")}>
+          Report
+          </NavItem>
         </NavList>
 
         {/* Desktop submenu */}
