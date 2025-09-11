@@ -13,5 +13,4 @@ export const routePath = {
     applicationtable:"applicationtable",
     studentApplicationForm:"studentApplicationForm",
     Reporttable:"Reporttable"
-  
   };

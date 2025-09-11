@@ -22,7 +22,7 @@ const App = () => {
         {/* Standalone Login Page */}
         <Route path={RP.login} element={<Login />} />
 
-        {/* Protected/Main Routes */}
+        {/* Protected/Main Route */}
         <Route path={RP.main} element={<RootLayout />}>
           <Route path={RP.form} element={<AddApplicationFormPage />} />
           <Route path={RP.coursetable} element={<CourseTablePage />} />

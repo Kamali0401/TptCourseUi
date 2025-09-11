@@ -42,7 +42,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     setActiveItem(item);
     navigate(path);
 
-    // Close submenu after navigation
+    // Close submenu after navigation-
     setSubmenuOpen(false);
 
     // Close sidebar only on mobile

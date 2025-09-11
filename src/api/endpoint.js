@@ -9,4 +9,5 @@ export const ApiKey = {
     uploadApplicationFiles: "/uploadAttachment",   
     downloadApplicationFiles: "downloads/downloadAttachments", 
     Report: "/applicationform/report"
+    
   };
