@@ -26,12 +26,13 @@ const validationSchema = Yup.object({
   instructorName: Yup.string()
     .max(100, "Instructor Name must be at most 100 characters")
     .required("Instructor Name is required"),
- totalSeats: Yup.number()
+totalSeats: Yup.number()
+  .nullable() // allow null while typing
   .transform((value, originalValue) =>
-    originalValue === "" ? undefined : value
+    String(originalValue).trim() === "" ? null : value
   )
+  .typeError("Total Seats must be a number")
   .required("Total Seats is required"),
-  //.integer("Total Seats must be an integer") // optional, if you want integers only
 
   startTime: Yup.string().required("Start Time is required"),
   endTime: Yup.string().required("End Time is required"),
@@ -97,7 +98,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
         courseID: "",
         startDate: null,
         endDate: null,
-        totalSeats:0,
+        totalSeats:"",
         availableSeats:0,
         instructorName: "",
         startTime: "",
@@ -242,7 +243,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                <div className="mb-3">
         <label>Available Seats</label>
         <Field
-          type="number"
+          type="text"
           name="availableSeats"
           className="form-control"
           readOnly
