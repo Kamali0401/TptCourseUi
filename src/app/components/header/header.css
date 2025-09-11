@@ -3,8 +3,9 @@
 /* Common Styles */
 .header-block {
   width: 100%;
+  padding: 15px 20px;
   background-color: #f5f5f5;
-  margin-top: 5px;
+  margin-top: 20px;
 }
 
 .navbar {
@@ -12,9 +13,22 @@
   align-items: center;
   justify-content: space-between;
   position: relative;
-  padding: 0 1rem;
-  height: 80px;
+  padding: 0.5rem 1rem;
+  min-height: 80px;  /* give a base height */
+  height: auto;
+  flex-wrap: wrap;
 }
+/*.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  padding: 0.5rem 1rem;
+  min-height: 80px;  /* give a base height */
+      /* allow expansion if content grows */
+/*}*/
+
+
 
 .nav-left, .nav-right {
   display: flex;

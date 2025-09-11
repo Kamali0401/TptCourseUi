@@ -80,6 +80,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
   // Prefill values for editing
   useEffect(() => {
     if (batch) {
+      debugger;
       setInitialValues({
         batchName: batch.batchName || "",
          courseID: batch.courseID || "",
@@ -110,10 +111,17 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
 
   const handleFormSubmit =async (values, { resetForm }) => {
      console.log("✅ Final Form Values:", values);
+    debugger;
     try{
        const finalValues = {
     ...values,
      courseID: Number(values.courseID),
+  startDate: values.startDate
+    ? moment(values.startDate).format("YYYY-MM-DD")
+    : null,
+  endDate: values.endDate
+    ? moment(values.endDate).format("YYYY-MM-DD")
+    : null,
     startTime: values.startTime 
       ? moment(values.startTime, "hh:mm A").format("HH:mm:ss")
       : null,

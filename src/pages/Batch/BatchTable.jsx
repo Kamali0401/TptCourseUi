@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import moment from "moment";
 
 import Swal from "sweetalert2";
 import { FaEdit, FaTrash } from "react-icons/fa";
@@ -158,7 +159,7 @@ useEffect(() => {
                   <td>{indexOfFirst + index + 1}</td>
                   <td>{batch.batchName}</td>
                   <td>{batch.courseName}</td>
-              <td>{batch.startDate ? new Date(batch.startDate).toISOString().split("T")[0] : ""}</td>
+              <td>{batch.startDate ? moment(batch.startDate).format("YYYY-MM-DD") : ""}</td>
                   <td>{batch.status}</td>
                   <td className="action-buttons">
                     <button

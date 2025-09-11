@@ -31,11 +31,7 @@ export default function Header() {
           </div>
 
           <div className="nav-right">
-            <div className="support">
-              <FaPhoneAlt className="icon" />
-              <span className="text">Call For Support</span>
-              <span className="number">(0427) 2446219, 4099303</span>
-            </div>
+            
 
             <span className="power-button" onClick={handleLogout}>
               <FaPowerOff className="icon" />
