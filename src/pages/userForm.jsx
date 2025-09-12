@@ -7,14 +7,14 @@ import "./userform.css";
 import { fetchCourseListReq } from '../api/course/course';
 import {fetchBatchDropdownReq} from '../api/batch/batch';
 import { useDispatch, useSelector } from "react-redux";
-import { updateForm ,addNewForm,fetchFormList} from '../app/redux/slice/formSlice';
+import { updateForm,updatePaymentForm ,addNewForm,fetchFormList} from '../app/redux/slice/formSlice';
 import { uploadFormFilesReq,downloadFormFilesReq} from '../../src/api/form/form';
 import { fetchFormListReq } from '../../src/api/form/form';
 //import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { loadRazorpay } from "../../src/utlis/razorpay"; // Adjust path accordingly
-import { updateFormReq } from '../api/form/form';
+import { updatePaymentFormReq} from '../api/form/form';
 import * as Yup from 'yup';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
@@ -50,11 +50,20 @@ const [saveddata, setsaveddata] = useState(null);
 
    const [courseList, setCourseList] = useState([]);
       console.log(courseList,"courseList")
+
+      const [admin, setAdmin] = useState(null);
+
+    
+
       // Fetch courses when modal opens
     useEffect(() => {
       const loadCourses = async () => {
         try {
           debugger;
+            const storedAdmin =(localStorage.getItem("role"));
+        if (storedAdmin) {
+            setAdmin(storedAdmin);
+        }
           const response = await fetchCourseListReq(); // 🔹 call API
           if (response) {
             setCourseList(response.data); // 🔹 store in state
@@ -369,52 +378,73 @@ const handleDownload = async (fileName, id) => {
   }
 };
 
-const handleRazorpayPayment = (data,courseFee) => {
+const handleRazorpayPayment = (data, courseFee) => {
   try {
-    console.log(data,"data");
-    console.log(courseFee,"coursefee");
-     const paymentData = Array.isArray(data) ? data[0] : data;
-        const fee = (courseFee ?? paymentData.courseFee ?? 0);
- 
+    console.log(data, "data");
+    console.log(courseFee, "courseFee");
+
+    const paymentData = Array.isArray(data) ? data[0] : data;
+    const fee = courseFee ?? paymentData.courseFee ?? 0;
+
     const options = {
       key: 'rzp_test_6pwjCwtwwp3YOu', // Razorpay test key
-      amount:(fee * 100).toFixed(0), // in paise
+      amount: (fee * 100).toFixed(0), // Amount in paise
       currency: 'INR',
       name: 'Thiagarajar Polytechnic College',
       description: 'Course Payment',
       prefill: {
-        contact: '0000000000',
-        name: 'Admin',
+        contact: paymentData.contactNumber || '0000000000',
+        name: paymentData.name || 'Admin',
       },
       theme: { color: '#8B5CF6' },
       handler: async function (response) {
-        // Payment succeeded
-        console.log('Payment ID:', response.razorpay_payment_id);
- 
+        console.log('Payment Response:', response);
+
         try {
           debugger;
-         
-          // Call your API to update the form/payment status
-          const apiResponse = await updateFormReq({
-            //...data,
-            ...paymentData,
-            isPaymentDone: true,
-           // paymentRefereceNo: response.razorpay_payment_id,
-          });
-        
+
+          // Determine payment success or failure
+          const isPaymentSuccess = !!response.razorpay_payment_id;
+          const paymentStatus = isPaymentSuccess ? 'Success' : 'Failed';
+          const data = {
+            ApplicationID: paymentData.applicationID,
+            PaymentResponse: JSON.stringify(response), // Store entire response as JSON
+            Status: paymentStatus,
+            Amount: fee,
+            CreatedBy: paymentData.createdBy,
+            CreatedDate: new Date(),
+            isPaymentDone: isPaymentSuccess // true if success, false if failure
+          };
+
+          // Call API to update the payment status
+          const apiResponse = await updatePaymentFormReq(data);
           console.log('Form updated successfully', apiResponse.data);
- 
-          // Redirect after 10 seconds
-         // Show success alert, then redirect on clicking OK
-  Swal.fire({
-    title: 'Success',
-    text: 'Payment successful!',
-    icon: 'success',
-    confirmButtonText: 'OK'
-  }).then(() => {
-    // Redirect to application table
-   navigate("/main/applicationtable");
-  });
+
+          if (isPaymentSuccess) {
+            // Show success message and redirect
+            Swal.fire({
+              title: 'Success',
+              text: 'Payment successful!',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              if(admin==="Admin"){
+ navigate("/main/applicationtable");
+              } else{
+               navigate("/payment-success");  
+              }
+             
+            });
+          } else {
+            // Show failure message
+            Swal.fire({
+              title: 'Payment Failed',
+              text: 'The payment could not be processed. Please try again.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          }
+
         } catch (apiError) {
           console.error('API error:', apiError);
           Swal.fire('Error', 'Payment succeeded but updating form failed', 'error');
@@ -426,15 +456,17 @@ const handleRazorpayPayment = (data,courseFee) => {
         },
       },
     };
- 
+
     // Open Razorpay checkout
     const rzp = new window.Razorpay(options);
     rzp.open();
+
   } catch (error) {
     console.error('Payment initiation error:', error);
     Swal.fire('Error', 'Payment initiation failed', 'error');
   }
 };
+
 // 1️⃣ Save form data first
 const handleSave = async (values, formikHelpers) => {
   const { setSubmitting } = formikHelpers;
@@ -543,9 +575,16 @@ console.log("Filtered application as array:", filteredApps);
     <div className="form-wrapper">
       <div className="card">
         <div className="form-header">
-          <button type="button" className="close-icon" onClick={handleClose} aria-label="Close">
-            &times;
-          </button>
+          {admin === "Admin" && (
+    <button
+      type="button"
+      className="close-icon"
+      onClick={handleClose}
+      aria-label="Close"
+    >
+      &times;
+    </button>
+  )}
           <h2>THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636005</h2>
           <h3>CONTINUING EDUCATION CENTRE</h3>
           <p>Phone: (0427) 2446219, 4099303 | Email: <a href="mailto:ciicptptc@gmail.com">ciicptptc@gmail.com</a></p>
@@ -1053,6 +1092,7 @@ onSubmit={async (values, formikHelpers) => {
   >
     Pay ₹{selectedBatch?.courseFee || 0} 🔒
   </button>
+   {admin === "Admin" && (
 <button
           type="button"
           style={{
@@ -1069,6 +1109,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           Close
         </button>
+   )}
         </>
 )}
  
@@ -1096,6 +1137,7 @@ onSubmit={async (values, formikHelpers) => {
   >
     Pay ₹{applicationform.courseFee || '0'} 🔒
   </button>
+   {admin === "Admin" && (
 <button
           type="button"
           style={{
@@ -1112,6 +1154,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           Close
         </button>
+   )}
         </>
 )}
    
@@ -1134,7 +1177,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           {applicationform ? 'Update' : 'Submit'}
         </button>
- 
+  {admin === "Admin" && (
         <button
           type="button"
           style={{
@@ -1151,6 +1194,7 @@ onSubmit={async (values, formikHelpers) => {
         >
           Close
         </button>
+  )}
       </>
     )}
   </div>
@@ -1162,6 +1206,8 @@ onSubmit={async (values, formikHelpers) => {
     </Formik>
     </div>
     </div>
+
+    
   );
 };
 

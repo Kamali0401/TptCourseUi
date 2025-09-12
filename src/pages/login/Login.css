@@ -52,3 +52,21 @@
   font-weight: normal;
   margin-top: 10px;
 }
+/* Password toggle styling */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+}
+
+.password-toggle:hover {
+  color: #000;
+}

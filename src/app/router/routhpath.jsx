@@ -12,5 +12,6 @@ export const routePath = {
     batchtable:"batchtable",
     applicationtable:"applicationtable",
     studentApplicationForm:"studentApplicationForm",
-    Reporttable:"Reporttable"
+    Reporttable:"Reporttable",
+    success:"/payment-success",
   };

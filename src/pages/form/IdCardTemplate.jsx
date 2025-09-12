@@ -1,6 +1,10 @@
 import React, { forwardRef } from 'react';
 import './IDCard.css';
+<<<<<<< HEAD
 import logo from "./../../app/assets/logo.png";
+=======
+import logo from "../../app/assets/logo.jpg";
+>>>>>>> 572bc59c4d6a4fb53c533b88cda4447f97a65fcc
 const IDCardTemplate = forwardRef((props, ref) => {
     debugger;
 
@@ -15,6 +19,7 @@ const IDCardTemplate = forwardRef((props, ref) => {
       <div id="print-id-card" className="id-card-container">
         {/* Front of the ID card */}
         <div className="id-card front">
+<<<<<<< HEAD
           <div className="header">
             <img src={logo} alt="College Logo" className="college-logo" />
             <div className="header-text">
@@ -29,6 +34,25 @@ const IDCardTemplate = forwardRef((props, ref) => {
           </div>
 
           <div className="title">STUDENT IDENTITY CARD</div>
+=======
+          <div className="header" style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
+    <img
+      src={logo} // Replace with the actual logo path or import
+      alt="Thiagarajar Polytechnic College Logo"
+      style={{ height: '30px', width: 'auto' }}
+    />
+    <div style={{ textAlign: 'left' }}>
+      <div style={{ fontWeight: 'bold', fontSize: '9px' }}>
+        THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636 005.
+      </div>
+      <div style={{ fontSize: '9px',textAlign:"center" }}>CONTINUING EDUCATION CENTRE</div>
+      <div style={{ fontSize: '9px' }}>
+        (Estd. Under CIICP), SALEM - 636 005 📞 2446219, 4099303
+      </div>
+    </div>
+  </div>
+          <div className="title" style={{borderBottom:"1px solid black"}}>STUDENT IDENTITY CARD</div>
+>>>>>>> 572bc59c4d6a4fb53c533b88cda4447f97a65fcc
           
           <div className="details" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',marginBottom: '30px' }}>
   {/* <div className="photo-box">...</div> */} {/* commented out photo box */}

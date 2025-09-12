@@ -8,6 +8,7 @@ export const ApiKey = {
     Attachment:"/uploadAttachment/viewAttachments",
     uploadApplicationFiles: "/uploadAttachment",   
     downloadApplicationFiles: "downloads/downloadAttachments", 
-    Report: "/applicationform/report"
-    
+    Report: "/applicationform/report",
+    Payment: "/applicationform/payment"
+
   };
