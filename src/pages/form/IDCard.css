@@ -30,7 +30,7 @@
 .id-card {
   width: 8.5cm;
   height: 5.5cm;
-  border: 1px solid #000; /* ✅ clean border like 2nd image */
+  border: 1px solid #0b2d64; /* ✅ clean border like 2nd image */
   padding: 6px;
   font-family: Arial, sans-serif;
   font-size: 11px;
@@ -45,11 +45,11 @@
   align-items: center;
   background-color: #0b2d64;
   color: white;
-  padding: 4px 8px;
+  padding: 2px 3px;
   font-size: 9px;
   line-height: 1.3;
   font-weight: bold;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #0b2d64;
 }
 
 .college-logo {
@@ -91,7 +91,7 @@
   font-weight: bold;
   margin: 4px 0;
   font-size: 11px;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #0b2d64;
   padding-bottom: 2px;
   width: 100%;
    color: #0b2d64;
@@ -169,7 +169,7 @@
 
   .id-card {
     page-break-inside: avoid;
-    border: 1px solid black;
+    border: 1px solid #0b2d64;
     margin: auto;
   }
 }
