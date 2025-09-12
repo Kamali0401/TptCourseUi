@@ -1,10 +1,6 @@
 import React, { forwardRef } from 'react';
 import './IDCard.css';
-<<<<<<< HEAD
-import logo from "./../../app/assets/logo.png";
-=======
-import logo from "../../app/assets/logo.jpg";
->>>>>>> 572bc59c4d6a4fb53c533b88cda4447f97a65fcc
+import logo from "../../app/assets/logo.png";
 const IDCardTemplate = forwardRef((props, ref) => {
     debugger;
 
@@ -19,23 +15,7 @@ const IDCardTemplate = forwardRef((props, ref) => {
       <div id="print-id-card" className="id-card-container">
         {/* Front of the ID card */}
         <div className="id-card front">
-<<<<<<< HEAD
-          <div className="header">
-            <img src={logo} alt="College Logo" className="college-logo" />
-            <div className="header-text">
-              <div className="college-line">
-                THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636 005.
-              </div>
-              <div className="center-line">CONTINUING EDUCATION CENTRE</div>
-              <div className="line">
-                (Estd. Under CIICP), SALEM - 636 005 📞 2446219, 4099303
-              </div>
-            </div>
-          </div>
-
-          <div className="title">STUDENT IDENTITY CARD</div>
-=======
-          <div className="header" style={{ display: 'flex', alignItems: 'center', gap: '1px' }}>
+         {/* <div className="header" style={{ display: 'flex', gap: '1px' }}>
     <img
       src={logo} // Replace with the actual logo path or import
       alt="Thiagarajar Polytechnic College Logo"
@@ -50,9 +30,26 @@ const IDCardTemplate = forwardRef((props, ref) => {
         (Estd. Under CIICP), SALEM - 636 005 📞 2446219, 4099303
       </div>
     </div>
+  </div>*/}
+  <div className="header">
+  <img
+    src={logo} // Replace with actual logo path or import
+    alt="Thiagarajar Polytechnic College Logo"
+    style={{ height: '30px', width: 'auto', marginLeft: '0px' }} // Ensure no left margin
+  />
+  <div style={{ textAlign: 'left', marginLeft: '4px' }}> {/* Small space between logo and text */}
+    <div style={{ fontWeight: 'bold', fontSize: '9px' }}>
+      THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636 005.
+    </div>
+    <div style={{ fontSize: '9px', textAlign: "center" }}>
+      CONTINUING EDUCATION CENTRE
+    </div>
+    <div style={{ fontSize: '9px' }}>
+      (Estd. Under CIICP), SALEM - 636 005 📞 2446219, 4099303
+    </div>
   </div>
-          <div className="title" style={{borderBottom:"1px solid black"}}>STUDENT IDENTITY CARD</div>
->>>>>>> 572bc59c4d6a4fb53c533b88cda4447f97a65fcc
+</div>
+          <div className="title" style={{borderBottom:"1px solid #0b2d64"}}>STUDENT IDENTITY CARD</div>
           
           <div className="details" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',marginBottom: '30px' }}>
   {/* <div className="photo-box">...</div> */} {/* commented out photo box */}
@@ -72,11 +69,18 @@ const IDCardTemplate = forwardRef((props, ref) => {
     style={{
       width: '2cm',
       height: '2.5cm',
-      border: '1px solid black',
+      border: '1px solid #0b2d64',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
+       overflow: 'hidden',
+     paddingLeft: '0.5mm',     // 👈 Reduced from 1mm
+    paddingRight: '0.5mm',
+    paddingTop: 0,
+    paddingBottom: 0, // 👈 small padding to separate image from border
+    boxSizing: 'border-box', // ensures padding doesn't increase size
       overflow: 'hidden',
+      backgroundColor: 'white', // optional
     }}
   >
     {/* Paste your stamp image here */}
@@ -84,11 +88,13 @@ const IDCardTemplate = forwardRef((props, ref) => {
       <img
         src={data.stampImage}
         alt="Stamp"
-      //  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-       style={{ width: '2cm', height: '2.5cm', objectFit: 'cover' }}
+        style={{   width: "100%",       
+      height: "100%",      
+     objectFit: 'contain' }}
+      // style={{ width: '2cm', height: '2.5cm', objectFit: 'fill' }}
       />
     ) : (
-      <span>Stamp Image</span>
+      <span style={{color:" #0b2d64"}}>Stamp Image</span>
     )}
   </div>
 </div>
