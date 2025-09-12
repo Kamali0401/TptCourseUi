@@ -26,7 +26,7 @@ const validationSchema = Yup.object({
     .required("End Date is required"),
   instructorName: Yup.string()
     .max(100, "Instructor Name must be at most 100 characters")
-    .required("Instructor Name is required"),
+    .required("Instructor Name is required") .matches(/^[A-Za-z0-9 .-]+$/),
 totalSeats: Yup.number()
   .nullable() // allow null while typing
   .transform((value, originalValue) =>

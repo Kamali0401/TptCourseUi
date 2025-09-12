@@ -197,7 +197,8 @@ const handlePrint = (application) => {
   const filteredApplicationform = Applicationform.filter(
     (applicationform) =>
       applicationform.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase()
+      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase() || 
+      applicationform.courseName.toLowerCase().includes(searchQuery.toLocaleLowerCase)
   ));
 
   const totalPages = Math.ceil(filteredApplicationform.length / ApplicationformPerPage);
@@ -238,6 +239,7 @@ const handlePrint = (application) => {
               <th>ID</th>
               <th>Name of Candidate</th>
               <th>Sex</th>
+              <th>Course</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -248,6 +250,7 @@ const handlePrint = (application) => {
                   <td data-label="ID">{index + 1}</td>
                   <td data-label="Name of Candidate">{applicationform.candidateName}</td>
                   <td data-label="Sex">{applicationform.sex}</td>
+                  <td data-label="courseName">{applicationform.courseName}</td>   
                   <td data-label="Actions" className="action-buttons">
                     <button className="btn-edit" onClick={() => handleEdit(applicationform)}>
                       Edit
@@ -291,6 +294,10 @@ const handlePrint = (application) => {
         <div className="mobile-field">
           <strong>Sex</strong>
           <span>{applicationform.sex}</span>
+        </div>
+          <div className="mobile-field">
+          <strong>Course</strong>
+          <span>{applicationform.courseName}</span>
         </div>
         <div className="action-buttons" id={`actions-label-${applicationform.id}`}>
     <strong>Actions</strong>
