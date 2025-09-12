@@ -364,7 +364,7 @@ const handlePrint = (application) => {
           
         
       </div>
-      {/* Modal Form */}
+      {/* Modal Forms */}
       <AddApplicationFormPage
         show={showModal}
         handleClose={() => setShowModal(false)}
