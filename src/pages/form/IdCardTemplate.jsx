@@ -79,7 +79,7 @@ const IDCardTemplate = forwardRef((props, ref) => {
     paddingTop: 0,
     paddingBottom: 0, // 👈 small padding to separate image from border
     boxSizing: 'border-box', // ensures padding doesn't increase size
-      overflow: 'hidden',
+    //  overflow: 'hidden',
       backgroundColor: 'white', // optional
     }}
   >
