@@ -3,7 +3,8 @@
     visibility: hidden;
   }
 
-  #print-id-card, #print-id-card * {
+  #print-id-card,
+  #print-id-card * {
     visibility: visible;
   }
 
@@ -17,10 +18,7 @@
     display: none !important;
   }
 }
-.id-card.front {
-  position: relative;
-  padding-bottom: 30px; /* Add space for the signature */
-}
+
 .id-card-container {
   display: flex;
   flex-direction: column;
@@ -32,59 +30,103 @@
 .id-card {
   width: 8.5cm;
   height: 5.5cm;
-  border: 1px solid #000;
-  padding: 10px;
+  border: 1px solid #000; /* ✅ clean border like 2nd image */
+  padding: 6px;
   font-family: Arial, sans-serif;
   font-size: 11px;
   box-sizing: border-box;
   position: relative;
+  background: white;
 }
 
-.front .header {
-  font-weight: bold;
-  text-align: center;
-  font-size: 10px;
-  line-height: 1.3;
-}
-
-.front .title {
-  text-align: center;
-  font-weight: bold;
-  margin: 5px 0;
-  font-size: 12px;
-}
-
-.front .details {
-  display: flex;
-  margin-top: 10px;
-}
-
-.photo-box {
-  width: 2.5cm;
-  height: 3cm;
-  border: 1px solid #000;
-  margin-right: 10px;
-  background-color: #eee;
+/* 🔵 HEADER */
+.header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 10px;
+  background-color: #0b2d64;
+  color: white;
+  padding: 4px 8px;
+  font-size: 9px;
+  line-height: 1.3;
+  font-weight: bold;
+  border-bottom: 1px solid black;
+}
+
+.college-logo {
+  max-height: 1cm;
+  width: auto;
+  margin-right: 6px;
+}
+
+.header-text {
+  flex: 1;
+  text-align: left;
+}
+
+.college-line {
+  font-size: 9px;
+  font-weight: bold;
+  margin-bottom: 1px;
+  white-space: nowrap;   /* ✅ keeps in one line */
+}
+
+
+.center-line {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 1px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  text-align: center;   /* ✅ forces this line to center */
+  width: 100%;          /* ✅ ensures full width so centering works */
+}
+
+.line {
+  font-size: 8.5px;
+}
+
+/* TITLE */
+.title {
   text-align: center;
+  font-weight: bold;
+  margin: 4px 0;
+  font-size: 11px;
+  border-bottom: 1px solid black;
+  padding-bottom: 2px;
+  width: 100%;
+   color: #0b2d64;
+}
+
+/* DETAILS SECTION */
+.front .details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 6px;
 }
 
 .right-info {
   flex: 1;
+  font-size: 10.5px;
+  margin-right: 6px;
+  color: #0b2d64; 
 }
 
 .right-info div {
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .validity {
   display: flex;
   gap: 5px;
+  white-space: nowrap;
+  margin-top: 3px;
 }
 
+/* PHOTO */
+
+
+/* SIGNATURES INSIDE BORDER */
 .signature-section {
   display: flex;
   justify-content: space-between;
@@ -93,25 +135,28 @@
   left: 5px;
   right: 5px;
   font-size: 10px;
+  color: #0b2d64; 
 }
 
-.stamp-box {
-/*  position: absolute;*/
-  top: 10px;
-  right: 10px;
-  width: 2.5cm;
-  height: 2cm;
-  border: 1px dashed #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  text-align: center;
-}
-
+/* BACK SIDE */
 .back .field {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  font-size: 10.5px;
+  color: #0b2d64; 
 }
+
+.back .signature-section {
+  font-size: 9.5px;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+  color: #0b2d64; 
+}
+
+/* PRINT FIX */
 @media print {
   body {
     margin: 0 !important;
@@ -119,7 +164,7 @@
   }
 
   @page {
-    margin: 5mm;  /* adjust if needed */
+    margin: 5mm;
   }
 
   .id-card {

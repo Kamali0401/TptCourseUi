@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import './IDCard.css';
-
+import logo from "./../../app/assets/logo.png";
 const IDCardTemplate = forwardRef((props, ref) => {
     debugger;
 
@@ -16,22 +16,30 @@ const IDCardTemplate = forwardRef((props, ref) => {
         {/* Front of the ID card */}
         <div className="id-card front">
           <div className="header">
-            THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636 005.<br />
-            CONTINUING EDUCATION CENTRE<br />
-            (Estd. Under CIICP), SALEM - 636 005 📞 2446219, 4099303
+            <img src={logo} alt="College Logo" className="college-logo" />
+            <div className="header-text">
+              <div className="college-line">
+                THIAGARAJAR POLYTECHNIC COLLEGE, SALEM-636 005.
+              </div>
+              <div className="center-line">CONTINUING EDUCATION CENTRE</div>
+              <div className="line">
+                (Estd. Under CIICP), SALEM - 636 005 📞 2446219, 4099303
+              </div>
+            </div>
           </div>
-          <div className="title" style={{borderBottom:"1px solid black"}}>STUDENT IDENTITY CARD</div>
+
+          <div className="title">STUDENT IDENTITY CARD</div>
           
           <div className="details" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',marginBottom: '30px' }}>
   {/* <div className="photo-box">...</div> */} {/* commented out photo box */}
 
   <div className="right-info" style={{ flex: 1 }}>
-    <div><strong>Name:</strong> {data.candidateName}</div>
-    <div><strong>Course:</strong> {data.courseName}</div>
-    <div><strong>Batch No.:</strong> {data.batchName}</div>
+    <div><strong>Name :</strong> {data.candidateName}</div>
+    <div><strong>Course :</strong> {data.courseName}</div>
+    <div><strong>Batch No :</strong> {data.batchName}</div>
    <div className="validity">
-  <strong>Valid From:</strong> {formatDate(data.batchStartDate)} 
-  <strong>To:</strong> {formatDate(data.batchEndDate)}
+  <strong>Valid From :</strong> {formatDate(data.batchStartDate)} 
+  <strong>To</strong> {formatDate(data.batchEndDate)}
 </div>
   </div>
 
@@ -70,14 +78,14 @@ const IDCardTemplate = forwardRef((props, ref) => {
         {/* Back of the ID card */}
         <div className="id-card back">
           <div className="field">
-            <strong>Blood Group:</strong> {data.bloodGroup}
+            <strong>Blood Group :</strong> {data.bloodGroup}
           </div>
           <div className="field">
-            <strong>Address for Communication:</strong><br />
+            <strong>Address for Communication :</strong><br />
             {data.contactAddress}
           </div>
           <div className="field">
-            <strong>Phone / Cell No.:</strong> {data.mobileNumber}
+            <strong>Phone / Cell No.</strong> {data.mobileNumber}
           </div>
 
           <div className="signature-section">

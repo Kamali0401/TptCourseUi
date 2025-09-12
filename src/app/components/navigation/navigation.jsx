@@ -8,7 +8,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const roleId = localStorage.getItem("roleid");
 
-  const [activeItem, setActiveItem] = useState(null); 
+  const [activeItem, setActiveItem] = useState(null);
   const [submenuOpen, setSubmenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -18,6 +18,13 @@ const Sidebar = ({ isOpen, onClose }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // 🔧 Ensure submenu closes when sidebar closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSubmenuOpen(false);
+    }
+  }, [isOpen]);
 
   const handleNavigation = (item) => {
     let path;
@@ -30,19 +37,18 @@ const Sidebar = ({ isOpen, onClose }) => {
         break;
       case "Form":
         path = RP.applicationtable;
-      break;
-      case "Report":   
-       path = RP.Reporttable; 
-      break;
+        break;
+      case "Report":
+        path = RP.Reporttable;
+        break;
       default:
         path = "/";
-      
     }
 
     setActiveItem(item);
     navigate(path);
 
-    // Close submenu after navigation-
+    // Close submenu after navigation
     setSubmenuOpen(false);
 
     // Close sidebar only on mobile
@@ -52,25 +58,25 @@ const Sidebar = ({ isOpen, onClose }) => {
   const handleMasterClick = () => {
     if (!submenuOpen) {
       setSubmenuOpen(true);
-      // Default to Course when Master is clicked
       setActiveItem("Course");
       navigate(RP.coursetable);
-      
     } else {
       setSubmenuOpen(false);
     }
   };
-  const handleOverlayClose = () => {
-    setSubmenuOpen(false); 
-    onClose();             
+
+  // 🔧 Close both sidebar + submenu
+  const handleSidebarClose = () => {
+    setSubmenuOpen(false);
+    onClose();
   };
 
   return (
     <>
-      <SidebarOverlay $isOpen={isOpen} onClick={handleOverlayClose} />
+      <SidebarOverlay $isOpen={isOpen} onClick={handleSidebarClose} />
       <SidebarContainer $isOpen={isOpen}>
         <SidebarHeader>
-          <FaTimes onClick={onClose} />
+          <FaTimes onClick={handleSidebarClose} />
         </SidebarHeader>
 
         <NavList>
@@ -107,9 +113,10 @@ const Sidebar = ({ isOpen, onClose }) => {
             </NavItem>
           )}
           <NavItem
-          className={activeItem === "Report" ? "active" : ""}
-          onClick={() => handleNavigation("Report")}>
-          Report
+            className={activeItem === "Report" ? "active" : ""}
+            onClick={() => handleNavigation("Report")}
+          >
+            Report
           </NavItem>
         </NavList>
 
@@ -137,7 +144,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
 export default Sidebar;
 
-// Styled Components
+/* ---------------- Styled Components ---------------- */
 const SidebarOverlay = styled.div`
   display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
   position: fixed;
@@ -213,8 +220,8 @@ const SubNavItem = styled.li`
 
 const FlyoutMenu = styled.div`
   position: fixed;
-  top: 60px; 
-  left: 260px; 
+  top: 60px;
+  left: 260px;
   background-color: #111;
   color: white;
   padding: 10px;
