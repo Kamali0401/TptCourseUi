@@ -1,4 +1,4 @@
-import React, { useState, useMemo,useEffect } from 'react';
+import React, { useState, useMemo,useEffect ,useRef } from 'react';
 import { Formik, Form, Field , ErrorMessage} from 'formik';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
@@ -47,7 +47,11 @@ const [saveddata, setsaveddata] = useState(null);
   const [batches, setBatches] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState(null);
   console.log(selectedBatch,"selectedBatch" );
-
+const fileInputRef = useRef(null);
+//const [isNewFileSelected, setIsNewFileSelected] = useState(false);
+ const [newFileSelected, setNewFileSelected] = useState(false);
+// const { setFieldValue } = useFormikContext();
+  const [fileSelected, setFileSelected] = useState(false);
    const [courseList, setCourseList] = useState([]);
       console.log(courseList,"courseList")
 
@@ -329,7 +333,7 @@ debugger;
 const [filesList, setFilesList] = useState(applicationform?.files || []);
 
 // Handle file change for new uploads
-const handleFileChange = (event, setFieldValue) => {
+/*const handleFileChange = (event, setFieldValue) => {
   const file = event.currentTarget.files[0];
   if (file) {
     debugger;
@@ -346,8 +350,8 @@ const handleFileChange = (event, setFieldValue) => {
     // Append new file to existing list
     setFilesList((prev) => [...prev, file.name]);
   }
-};
-
+};*/
+// 
 // Handler for download button
 const handleDownload = async (fileName, id) => {
   if (!fileName || !applicationform?.applicationID) return;
@@ -569,8 +573,57 @@ console.log("Filtered application as array:", filteredApps);
     setSubmitting(false);
   }
 };
+//Handle file change
+    /*const handleFileChange = (event, setFieldValue) => {
+  const file = event.currentTarget.files[0];
+  if (!file) return;
 
+  const allowedTypes = ["image/png", "image/jpeg"];
+  if (!allowedTypes.includes(file.type)) {
+    alert("Only PNG and JPG images are allowed!");
+    event.target.value = null;
+    return;
+  }
 
+  setFieldValue("photo", file);
+  //setFileSelected(true);
+};
+
+const handleClear = (setFieldValue, setFileSelected, fileInputRef) => {
+  setFieldValue("photo", null);
+  setFileSelected(false);
+  if (fileInputRef.current) {
+    fileInputRef.current.value = null;
+  }
+};*/
+const handleFileChange = (event, setFieldValue) => {
+    const file = event.currentTarget.files[0]; // single file
+    if (!file) return;
+
+    const allowedTypes = ["image/png", "image/jpeg"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only PNG and JPG images are allowed!");
+      event.target.value = null;
+      setFieldValue("photo", null);
+      setFilesList([]);
+      setFileSelected(false);
+      setNewFileSelected(false);
+      return;
+    }
+
+    setFieldValue("photo", file); // Formik field
+    setFilesList([file.name]);    // display file name
+    setFileSelected(true); 
+    setNewFileSelected(true);       // show Clear button
+  };
+
+  const handleClear = () => {
+    if (fileInputRef.current) fileInputRef.current.value = null;
+    setFieldValue("photo", null);
+    setFilesList([]);
+    setFileSelected(false);
+     setNewFileSelected(false);    
+  };
  return (
     <div className="form-wrapper">
       <div className="card">
@@ -719,6 +772,13 @@ onSubmit={async (values, formikHelpers) => {
   <Field
     type="text"
     name="aadharNumber"
+    onChange={(e) => {
+              const value = e.target.value;
+              // Allow only digits
+              if (/^\d*$/.test(value)) {
+                setFieldValue('aadharNumber', value);
+              }
+            }}
     maxLength={12}
   />
   <ErrorMessage
@@ -794,31 +854,146 @@ onSubmit={async (values, formikHelpers) => {
                     {qual.label}
                   </label>
                 </td>
-                <td>
-              <Field
-                name={`${qual.key}.year`}
-                type="number"
-                disabled={!selectedQuals.includes(qual.key)}
-                required={selectedQuals.includes(qual.key)}
-                onInput={(e) => {
-                e.target.value = e.target.value.slice(0, 4);
-                }}
-               />                                
+             <td>
+  <Field
+    name={`${qual.key}.year`}
+    type="text"
+    disabled={!selectedQuals.includes(qual.key)}
+    required={selectedQuals.includes(qual.key)}
+    inputMode="numeric"
+    maxLength={4}
+    onInput={(e) => {
+      let value = e.target.value.replace(/\D/g, ''); // digits only
 
-                  
-                </td>
-                <td>
-                  <Field
-                    name={`${qual.key}.marks`}
-                    type="number"
-                    disabled={!selectedQuals.includes(qual.key)}
-                    required={selectedQuals.includes(qual.key)}
-                    onInput={(e) => {
-                    e.target.value = e.target.value.slice(0, 3);
-                    
-                    }}
-                  />
-                </td>
+      const currentYear = new Date().getFullYear();
+      const minYear = currentYear - 79;
+
+      // Limit max length
+      if (value.length > 4) value = value.slice(0, 4);
+
+      // Prevent typing greater than current year
+      if (parseInt(value, 10) > currentYear) {
+        value = currentYear.toString();
+      }
+
+      // Prevent typing less than minYear if 4 digits
+      if (value.length === 4 && parseInt(value, 10) < minYear) {
+        value = minYear.toString();
+      }
+
+      e.target.value = value;
+      e.target.defaultValue = value; // save last valid
+    }}
+    onBlur={(e) => {
+      const errorDiv = document.getElementById(`${qual.key}-year-error`);
+      if (!errorDiv) return;
+
+      const value = e.target.value.trim();
+      const currentYear = new Date().getFullYear();
+      const minYear = currentYear - 80;
+      const numericValue = parseInt(value, 10);
+
+      if (value === '') {
+        errorDiv.textContent = 'Year is required';
+      } else if (isNaN(numericValue)) {
+        errorDiv.textContent = 'Year must be a number';
+      } else if (value.length !== 4) {
+        errorDiv.textContent = 'Enter a 4-digit year';
+      } else if (numericValue < minYear || numericValue > currentYear) {
+        errorDiv.textContent = `Year must be between ${minYear} and ${currentYear}`;
+      } else {
+        errorDiv.textContent = '';
+      }
+    }}
+  />
+
+  <div
+    id={`${qual.key}-year-error`}
+    className="error-message"
+    style={{ color: 'red', minHeight: '1em' }}
+  ></div>
+</td>
+
+
+    <td>
+  <Field
+    name={`${qual.key}.marks`}
+    type="text" // using text for better control
+    disabled={!selectedQuals.includes(qual.key)}
+    required={selectedQuals.includes(qual.key)}
+    inputMode="decimal"
+    onInput={(e) => {
+      let value = e.target.value;
+
+      // Remove all except digits and one dot
+      value = value.replace(/[^0-9.]/g, '');
+
+      const parts = value.split('.');
+
+      // Allow only one dot
+      if (parts.length > 2) {
+        value = parts[0] + '.' + parts[1];
+      }
+
+      // Disallow starting with zero unless it's "0."
+      if (parts[0].length > 1 && parts[0].startsWith('0')) {
+        parts[0] = parts[0].slice(1);
+      }
+
+      // Limit to 3 digits before the dot
+      if (parts[0].length > 3) {
+        parts[0] = parts[0].slice(0, 3);
+      }
+
+      // Limit to one digit after the dot
+      if (parts.length === 2 && parts[1].length > 1) {
+        parts[1] = parts[1].slice(0, 1);
+      }
+
+      value = parts.length > 1 ? parts[0] + '.' + parts[1] : parts[0];
+
+      // Check if numeric value exceeds 100
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue) && numericValue > 100) {
+        if (value !== '100' && value !== '100.0') {
+          e.target.value = e.target.defaultValue || '';
+          return;
+        }
+      }
+
+      // Prevent starting with 0 unless "0."
+      if (parts[0].startsWith('0') && parts[0] !== '0') {
+        parts[0] = parts[0].slice(1);
+        value = parts.length > 1 ? parts[0] + '.' + parts[1] : parts[0];
+      }
+
+      e.target.value = value;
+      e.target.defaultValue = value;
+    }}
+    onBlur={(e) => {
+      let value = e.target.value.trim();
+      const errorDiv = document.getElementById(`${qual.key}-marks-error`);
+
+      if (value === '') {
+        errorDiv.textContent = 'Marks are required';
+        return;
+      }
+
+      const num = parseFloat(value);
+      if (isNaN(num) || num < 1 || num > 100) {
+        errorDiv.textContent = 'Marks must be between 1 and 100';
+      } else {
+        errorDiv.textContent = '';
+        e.target.value = num.toFixed(1);
+      }
+    }}
+  />
+  <div id={`${qual.key}-marks-error`} className="error-message"></div>
+</td>
+
+
+
+
                 <td>
                   <Field
                     as="textarea"
@@ -988,20 +1163,42 @@ onSubmit={async (values, formikHelpers) => {
   className="error-message"
 />       </div>
 
-                {selectedBatch && (
+                {(selectedBatch || applicationform) && (
   <div className="batch-details-card">
     <h4>Batch Details</h4>
-    <p><strong>Total Seats:</strong> {selectedBatch.totalSeats}</p>
-    <p><strong>Available Seats:</strong> {selectedBatch.availableSeats}</p>
-    <p><strong>Start Date:</strong> {selectedBatch.startDate}</p>
-    <p><strong>Instructor:</strong> {selectedBatch.instructorName}</p>
-    <p><strong>Course Fee:</strong> ₹{selectedBatch.courseFee}</p>
+    
+    <p>
+      <strong>Total Seats:</strong>{" "}
+      {applicationform?.totalSeats ?? selectedBatch?.totalSeats}
+    </p>
 
-    {selectedBatch.availableSeats === 0 && (
+    <p>
+      <strong>Available Seats:</strong>{" "}
+      {applicationform?.availableSeats ?? selectedBatch?.availableSeats}
+    </p>
+
+    <p>
+      <strong>Start Date:</strong>{" "}
+      {applicationform?.startDate ?? selectedBatch?.startDate}
+    </p>
+
+    <p>
+      <strong>Instructor:</strong>{" "}
+      {applicationform?.instructorName ?? selectedBatch?.instructorName}
+    </p>
+
+    <p>
+      <strong>Course Fee:</strong> ₹
+      {applicationform?.courseFee ?? selectedBatch?.courseFee}
+    </p>
+
+    {(applicationform?.availableSeats === 0 ||
+      selectedBatch?.availableSeats === 0) && (
       <p style={{ color: "red", fontWeight: "bold" }}>Batch Full</p>
     )}
   </div>
 )}
+
   {/*<div style={{ marginTop: '10px' }}>
     <label>
       <Field type="checkbox" name="declaration" required />
@@ -1011,17 +1208,36 @@ onSubmit={async (values, formikHelpers) => {
 
   <button type="submit" style={{ marginTop: 20 }}>Submit</button>*/}
   {/* Buttons */}
-<div className="col-xs-6 col-md-6 col-lg-6 col-sm-12 form-group">
+{/*<div className="col-xs-6 col-md-6 col-lg-6 col-sm-12 form-group">
   <label>Upload Photo (JPG/PNG only)</label>
   <input
     className="form-control"
     type="file"
     id="formFileMultiple"
     accept="image/png, image/jpeg"
-    multiple
-    onChange={(e) => handleFileChange(e, setFieldValue)}
+  //  multiple
+     ref={fileInputRef}
+       onChange={(e) => handleFileChange(e, setFieldValue)}
   />
-
+   
+ 
+    {fileInputRef.current?.files?.length > 0 && (
+    <button
+      type="button"
+      className="btn btn-sm btn-danger mt-2"
+      onClick={() => {
+        // Clear the input value
+        if (fileInputRef.current) {
+          fileInputRef.current.value = null;
+        }
+        // Clear Formik field if used
+        setFieldValue("files", []);
+      }}
+    >
+      Clear
+    </button>
+  )}
+  
   {filesList?.length > 0 && (
     <div className="d-flex flex-column mt-2 rounded">
       {filesList.map((fileName, index) => (
@@ -1038,7 +1254,46 @@ onSubmit={async (values, formikHelpers) => {
       ))}
     </div>
   )}
-</div>
+</div>*/}
+<div className="col-xs-6 col-md-6 col-lg-6 col-sm-12 form-group">
+      <label>Upload Photo (JPG/PNG only)</label>
+      <input
+        className="form-control"
+        type="file"
+        accept="image/png, image/jpeg"
+        ref={fileInputRef}
+        //onChange={handleFileChange}
+          onChange={(e) => handleFileChange(e, setFieldValue)}
+      />
+
+      {/* Clear Button appears immediately when a file is selected */}
+      {fileSelected && (
+        <button type="button" className="btn btn-sm btn-danger mt-2" onClick={handleClear}>
+          Clear
+        </button>
+      )}
+
+      {/* Display filesList only if no new file is selected */}
+      {!newFileSelected && applicationform?.files?.length > 0 && (
+        <div className="d-flex flex-column mt-2 rounded">
+          {filesList.map((fileName, index) => (
+            <div
+              key={index}
+              className="d-flex align-items-center justify-content-between border rounded p-2 mb-1"
+            >
+              <span>{fileName || "No File Name"}</span>
+              <button
+                className="btn btn-sm btn-primary"
+                type="button"
+                onClick={() => handleDownload(fileName, applicationform.applicationID)}
+              >
+                Download
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
 
 
   <div style={{ marginTop: '10px' }}>
