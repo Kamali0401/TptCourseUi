@@ -18,7 +18,7 @@ const validationSchema = Yup.object({
 
   courseCode: Yup.string()
   .matches(
-    /^[A-Za-z0-9_-]+$/,
+    /^[A-Za-z0-9_&-]+$/,
     "Course Code can only contain letters, numbers, hyphen or underscore"
   )
     .max(20, "Course Code must be at most 20 characters")
@@ -127,7 +127,7 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
         className="form-control"
         maxLength={100}
        onInput={(e) => {
-       e.target.value = e.target.value.replace(/[^A-Za-z .-]/g, "");
+       e.target.value = e.target.value.replace(/[^A-Za-z 0-9 &.-]/g, "");
        e.target.value = e.target.value.replace(/\s{2,}/g, " ");
        }}
       />
