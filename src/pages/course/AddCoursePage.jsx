@@ -77,12 +77,12 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
       resetForm();
       handleClose();
     } catch (err) {
-       console.error("Error submitting course:", err);
-      Swal.fire({
-        title: "Submission Failed",
-        text: err?.message || "Something went wrong",
-        icon: "error",
-      });
+  console.error("Error submitting batch:", err);
+  Swal.fire({
+    title: "Submission Failed",
+    text: err?.errorMsg || "Something went wrong",
+    icon: "error",
+  });
     }finally {
       setSubmitting(false); // ✅ re-enable button
     }

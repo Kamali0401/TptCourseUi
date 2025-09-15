@@ -46,12 +46,13 @@ export const addNewCourse = async (data, dispatch) => {
           icon: "success",
         });
       } catch (error) {
-        dispatch(setError()); // Handle error if API fails
-        Swal.fire({
-          text: "Error! Try Again!",
-          icon: "error",
-        });
-        throw error; // Throw the error to be handled elsewhere
+  dispatch(setError());
+  Swal.fire({
+    title: "Error",
+    text: error?.errorMsg || "Error! Try Again!",
+    icon: "error",
+  });
+  throw error;// Throw the error to be handled elsewhere
       }
     };
 
