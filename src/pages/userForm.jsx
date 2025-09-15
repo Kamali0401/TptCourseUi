@@ -85,10 +85,21 @@ const fileInputRef = useRef(null);
 useEffect(() => {
   if (applicationform?.courseID) {
     fetchBatchDropdownReq(applicationform.courseID).then((res) => {
-      setBatches(res.data || []);
+      const batchList = res.data || [];
+      setBatches(batchList);
+
+      // ✅ If editing, auto-select the saved batch
+      if (applicationform?.batchId) {
+        const foundBatch = batchList.find(
+          (b) => b.batchID === applicationform.batchId
+        );
+        if (foundBatch) {
+          setSelectedBatch(foundBatch);
+        }
+      }
     });
   }
-}, [applicationform?.courseID]);
+}, [applicationform?.courseID, applicationform?.batchId]);
 
 
   // 🔹 When course changes, fetch batches
@@ -214,7 +225,7 @@ mobileNumber: Yup.string()
   declaration: Yup.boolean().oneOf([true], 'You must accept the declaration'),
   courseId: Yup.number().required('Course is required'),
   batchId: Yup.number().required('Batch is required'),
-  applicationDate: Yup.date().required('Date is Required'),
+  //applicationDate: Yup.date().required('Date is Required'),
   });
 
   const prepareSubmitData = (values) => {
@@ -1137,19 +1148,17 @@ onSubmit={async (values, formikHelpers) => {
   <label>
     Date <span style={{ color: 'red' }}>*</span>
   </label>
-  <DatePicker
-    selected={applicationDate}
-    onChange={(date) => {
-      setApplicationDate(date);
-      setFieldValue('applicationDate', date);
-    }}
-    dateFormat="dd-MM-yyyy"
-    placeholderText="dd-mm-yyy"
-    minDate={new Date()} 
-    maxDate={new Date()} 
-    customInput={
-      <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
-    }  />
+<Field
+    type="text"
+    name="applicationDate"
+    value={
+      values.applicationDate
+        ? moment(values.applicationDate).format("DD-MM-YYYY")
+        : moment().format("DD-MM-YYYY") // default to today
+    }
+    readOnly
+    className="text-input"
+  />
 <ErrorMessage
   name="applicationDate"
   component="div"
@@ -1210,41 +1219,46 @@ onSubmit={async (values, formikHelpers) => {
   className="error-message"
 />       </div>
 
-                {(selectedBatch || applicationform) && (
+ {(selectedBatch || applicationform) && (
   <div className="batch-details-card">
     <h4>Batch Details</h4>
-    
+
     <p>
       <strong>Total Seats:</strong>{" "}
-      {applicationform?.totalSeats ?? selectedBatch?.totalSeats}
+      {selectedBatch?.totalSeats ?? applicationform?.totalSeats}
     </p>
 
     <p>
       <strong>Available Seats:</strong>{" "}
-      {applicationform?.availableSeats ?? selectedBatch?.availableSeats}
+      {selectedBatch?.availableSeats ?? applicationform?.availableSeats}
     </p>
 
     <p>
-      <strong>Start Date:</strong>{" "}
-      {applicationform?.startDate ?? selectedBatch?.startDate}
+   <strong>Start Date:</strong>{" "}
+      {selectedBatch?.startDate
+        ? moment(selectedBatch.startDate).format("DD-MM-YYYY")
+        : applicationform?.startDate
+        ? moment(applicationform.startDate).format("DD-MM-YYYY")
+        : ""}
     </p>
 
     <p>
       <strong>Instructor:</strong>{" "}
-      {applicationform?.instructorName ?? selectedBatch?.instructorName}
+      {selectedBatch?.instructorName ?? applicationform?.instructorName}
     </p>
 
     <p>
       <strong>Course Fee:</strong> ₹
-      {applicationform?.courseFee ?? selectedBatch?.courseFee}
+      {selectedBatch?.courseFee ?? applicationform?.courseFee}
     </p>
 
-    {(applicationform?.availableSeats === 0 ||
-      selectedBatch?.availableSeats === 0) && (
+    {(selectedBatch?.availableSeats === 0 ||
+      applicationform?.availableSeats === 0) && (
       <p style={{ color: "red", fontWeight: "bold" }}>Batch Full</p>
     )}
   </div>
 )}
+
 
   {/*<div style={{ marginTop: '10px' }}>
     <label>
