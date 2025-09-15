@@ -25,24 +25,28 @@ const validationSchema = Yup.object({
     .required("End Date is required"),
   instructorName: Yup.string()
     .max(100, "Instructor Name must be at most 100 characters")
-    .required("Instructor Name is required")
-    .matches(/^[A-Za-z0-9 .-]+$/, "Instructor Name can only contain letters, numbers, space, dot, hyphen"),
-  totalSeats: Yup.number()
-    .nullable()
-    .transform((value, originalValue) =>
-      String(originalValue).trim() === "" ? null : value
-    )
-    .typeError("Total Seats must be a number")
-    .required("Total Seats is required"),
-  startTime: Yup.date().required("Start Time is required"),
-  endTime: Yup.date()
+    .required("Instructor Name is required") .matches(/^[A-Za-z0-9 .-]+$/),
+totalSeats: Yup.number()
+  .nullable()
+  .transform((value, originalValue) =>
+    String(originalValue).trim() === "" ? null : value
+  )
+  .typeError("Total Seats must be a number")
+  .required("Total Seats is required")
+  .min(1, "Total Seats must be greater than 0"),   // <-- added
+
+
+  startTime: Yup.string().required("Start Time is required"),
+   endTime: Yup.date()
     .required("End Time is required")
     .test("is-after-start", "End Time must be after Start Time and not equal", function(value) {
       const { startTime } = this.parent;
       if (!startTime || !value) return true;
       return moment(value).isAfter(moment(startTime));
     }),
-  status: Yup.string().required("Status is required"),
+   status: Yup.string()
+      //.oneOf(["Active", "UnActive"], "Status must be Active or UnActive") // ✅ string validation
+      .required("Status is required"),
 });
 
 export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
@@ -156,14 +160,28 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
       >
-        {({ values, setFieldValue, setFieldError, resetForm, errors }) => (
+        {({ values, setFieldValue, resetForm , isSubmitting,errors}) => (
+          useEffect(() => {
+            if (!batch) {
+              setFieldValue("availableSeats", values.totalSeats || 0);
+            }
+            
+          }, [values.totalSeats, batch, setFieldValue]),
           <Form>
             <Modal.Body>
               <div className="mb-3">
                 <label>Batch Name <span style={{ color: "red" }}>*</span></label>
-                <Field type="text" name="batchName" className="form-control" />
-                <ErrorMessage name="batchName" component="div" className="error-message" />
-              </div>
+                <Field type="text" name="batchName" className="form-control" 
+        maxlength={100}
+        onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z 0-9.-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
+        <ErrorMessage
+        name="batchName"
+        component="div"
+        className="error-message"
+      />               </div>
 
               <div className="mb-3">
                 <label>Course Name <span style={{ color: "red" }}>*</span></label>
@@ -226,9 +244,16 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
 
               <div className="mb-3">
                 <label>Instructor Name <span style={{ color: "red" }}>*</span></label>
-                <Field type="text" name="instructorName" className="form-control" />
-                <ErrorMessage name="instructorName" component="div" className="error-message" />
-              </div>
+                <Field type="text" name="instructorName" className="form-control"   
+            onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z .-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+            }}/>
+ <ErrorMessage
+        name="instructorName"
+        component="div"
+        className="error-message"
+      />               </div>
 
               <div className="mb-3">
                 <label>Start Time <span style={{ color: "red" }}>*</span></label>
@@ -312,8 +337,29 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
             </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={() => resetForm()}>Clear</Button>
-              <Button type="submit" variant="primary">{batch ? "Update" : "Add"}</Button>
+              <Button variant="secondary" onClick={() => resetForm
+                ({
+               values:{
+               batchName: "",
+               courseID: "",
+               startDate: "",
+               endDate: "",
+               totalSeats: "",
+               availableSeats: "",
+               instructorName: "",
+               startTime: null,
+               endTime: null,
+               status:"",
+               
+               },
+              }
+              )}>
+                Clear
+              </Button>
+<Button type="submit" variant="primary" disabled={isSubmitting}>
+  {isSubmitting ? (batch ? "Updating..." : "Adding...") : batch ? "Update" : "Add"}
+</Button>
+
             </Modal.Footer>
           </Form>
         )}
