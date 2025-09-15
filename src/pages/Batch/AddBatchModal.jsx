@@ -160,7 +160,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
         validationSchema={validationSchema}
         onSubmit={handleFormSubmit}
       >
-        {({ values, setFieldValue, resetForm , isSubmitting,errors}) => (
+        {({ values, setFieldValue, resetForm , isSubmitting,errors,setFieldError}) => (
           useEffect(() => {
             if (!batch) {
               setFieldValue("availableSeats", values.totalSeats || 0);
