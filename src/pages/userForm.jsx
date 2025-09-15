@@ -1114,7 +1114,12 @@ onSubmit={async (values, formikHelpers) => {
         <label>
           Place <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="place"  maxLength={100} />
+        <Field type="text" name="place"  maxLength={100} 
+        onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
+
 <ErrorMessage
   name="place"
   component="div"

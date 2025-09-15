@@ -194,12 +194,15 @@ const handlePrint = (application) => {
     });
   };
 
-  const filteredApplicationform = Applicationform.filter(
-    (applicationform) =>
-      applicationform.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      applicationform.sex.toLowerCase().includes(searchQuery.toLowerCase() || 
-      applicationform.courseName.toLowerCase().includes(searchQuery.toLocaleLowerCase)
-  ));
+const filteredApplicationform = Applicationform.filter((applicationform) => {
+  const query = searchQuery.toLowerCase();
+  return (
+    applicationform.candidateName?.toLowerCase().includes(query) ||
+    applicationform.sex?.toLowerCase().includes(query) ||
+    applicationform.courseName?.toLowerCase().includes(query)
+  );
+});
+
 
   const totalPages = Math.ceil(filteredApplicationform.length / ApplicationformPerPage);
   const indexOfLast = page * ApplicationformPerPage;
