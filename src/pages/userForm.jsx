@@ -16,6 +16,7 @@ import axios from "axios";
 import { loadRazorpay } from "../../src/utlis/razorpay"; // Adjust path accordingly
 import { updatePaymentFormReq} from '../api/form/form';
 import * as Yup from 'yup';
+import moment from 'moment';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
 import moment from 'moment';
@@ -84,10 +85,21 @@ const fileInputRef = useRef(null);
 useEffect(() => {
   if (applicationform?.courseID) {
     fetchBatchDropdownReq(applicationform.courseID).then((res) => {
-      setBatches(res.data || []);
+      const batchList = res.data || [];
+      setBatches(batchList);
+
+      // ✅ If editing, auto-select the saved batch
+      if (applicationform?.batchId) {
+        const foundBatch = batchList.find(
+          (b) => b.batchID === applicationform.batchId
+        );
+        if (foundBatch) {
+          setSelectedBatch(foundBatch);
+        }
+      }
     });
   }
-}, [applicationform?.courseID]);
+}, [applicationform?.courseID, applicationform?.batchId]);
 
 
   // 🔹 When course changes, fetch batches
@@ -213,7 +225,7 @@ mobileNumber: Yup.string()
   declaration: Yup.boolean().oneOf([true], 'You must accept the declaration'),
   courseId: Yup.number().required('Course is required'),
   batchId: Yup.number().required('Batch is required'),
-  applicationDate: Yup.date().required('Date is Required'),
+  //applicationDate: Yup.date().required('Date is Required'),
   });
 
   const prepareSubmitData = (values) => {
@@ -239,6 +251,13 @@ mobileNumber: Yup.string()
     submitValues.educationDetails = JSON.stringify(educationDetailsList);
      // ✅ Pass as array, not string
     //submitValues.educationDetails = educationDetailsList;
+    if (values.dateOfBirth) {
+    submitValues.dateOfBirth = moment(values.dateOfBirth).format("YYYY-MM-DD");
+  }
+  if (values.applicationDate) {
+    submitValues.applicationDate = moment(values.applicationDate).format("YYYY-MM-DD");
+  }
+
     return submitValues;
   };
 
@@ -265,7 +284,7 @@ debugger;
     fatherOrHusbandName: applicationform.fatherOrHusbandName || '',
     contactAddress: applicationform.contactAddress || '',
     mobileNumber: applicationform.mobileNumber || '',
-    dateOfBirth: applicationform.dateOfBirth ? new Date(applicationform.dateOfBirth) : null,
+    dateOfBirth: applicationform?.dateOfBirth? moment(applicationform.dateOfBirth).toDate(): null,
     age: applicationform.age || '',
     aadharNumber: applicationform.aadharNumber || '',
     email: applicationform.email || '',
@@ -276,7 +295,7 @@ debugger;
     declaration: applicationform.declaration || false,
     place: applicationform.place || '',
     bloodGroup:applicationform.bloodGroup || '',
-    applicationDate: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
+    applicationDate: applicationform?.applicationDate  ? moment(applicationform.applicationDate).toDate()  : moment().toDate(),
     courseId: applicationform.courseID || '',
     batchId: applicationform.batchId || '',
     ispaymentdone : applicationform.ispaymentdone  || false,
@@ -1114,7 +1133,12 @@ onSubmit={async (values, formikHelpers) => {
         <label>
           Place <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="place"  maxLength={100} />
+        <Field type="text" name="place"  maxLength={100} 
+        onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
+
 <ErrorMessage
   name="place"
   component="div"
@@ -1124,19 +1148,17 @@ onSubmit={async (values, formikHelpers) => {
   <label>
     Date <span style={{ color: 'red' }}>*</span>
   </label>
-  <DatePicker
-    selected={applicationDate}
-    onChange={(date) => {
-      setApplicationDate(date);
-      setFieldValue('applicationDate', date);
-    }}
-    dateFormat="dd-MM-yyyy"
-    placeholderText="dd-mm-yyy"
-    minDate={new Date()} 
-    maxDate={new Date()} 
-    customInput={
-      <input type="text" className="text-input" placeholder="dd-mm-yyyy" />
-    }  />
+<Field
+    type="text"
+    name="applicationDate"
+    value={
+      values.applicationDate
+        ? moment(values.applicationDate).format("DD-MM-YYYY")
+        : moment().format("DD-MM-YYYY") // default to today
+    }
+    readOnly
+    className="text-input"
+  />
 <ErrorMessage
   name="applicationDate"
   component="div"
@@ -1207,7 +1229,7 @@ onSubmit={async (values, formikHelpers) => {
 
 
 
-                {(selectedBatch || applicationform) && (
+ {(selectedBatch || applicationform) && (
   <div className="batch-details-card">
   <h4>Batch Details</h4>
   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
@@ -1254,6 +1276,7 @@ onSubmit={async (values, formikHelpers) => {
 </div>
 
 )}
+
 
   {/*<div style={{ marginTop: '10px' }}>
     <label>

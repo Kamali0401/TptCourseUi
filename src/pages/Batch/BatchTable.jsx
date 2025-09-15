@@ -56,19 +56,25 @@ useEffect(() => {
     });
   };
 
-  const filteredBatches = batches.filter((batch) => {
-    const query = searchQuery.toLowerCase();
+const filteredBatches = batches.filter((batch) => {
+  const query = searchQuery.toLowerCase();
 
-    const matchesText =
-      batch.batchName.toLowerCase().includes(query) ||
-      batch.courseName.toLowerCase().includes(query);
+  const startDateStr = batch.startDate
+    ? moment(batch.startDate).format("YYYY-MM-DD").toLowerCase()
+    : "";
+  const endDateStr = batch.endDate
+    ? moment(batch.endDate).format("YYYY-MM-DD").toLowerCase()
+    : "";
 
-    const matchesDate =
-      batch.startDate.toLowerCase().includes(query) ||
-      batch.endDate.toLowerCase().includes(query);
+  const matchesText =
+    batch.batchName.toLowerCase().includes(query) ||
+    batch.courseName.toLowerCase().includes(query);
 
-    return matchesText || matchesDate;
-  });
+  const matchesDate =
+    startDateStr.includes(query) || endDateStr.includes(query);
+
+  return matchesText || matchesDate;
+});
 
   const totalPages = Math.ceil(filteredBatches.length / coursesPerPage);
   const indexOfLast = page * coursesPerPage;
