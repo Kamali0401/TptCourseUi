@@ -18,7 +18,7 @@ import { updatePaymentFormReq} from '../api/form/form';
 import * as Yup from 'yup';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
-
+import moment from 'moment';
 
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
@@ -1145,88 +1145,114 @@ onSubmit={async (values, formikHelpers) => {
 
 
       {/* Course Dropdown */}
-      <div>
-        <label>
-          Course Name <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field
-          as="select"
-          name="courseId"
-          onChange={(e) => handleCourseChange(e.target.value, setFieldValue)}
-          value={values.courseId}
-          
-        >
-          <option value="">Select Course</option>
-          {courseList.map((course) => (
-            <option key={course.courseID} value={course.courseID}>
-              {course.courseName}
-            </option>
-          ))}
-        </Field>
-<ErrorMessage
-  name="courseId"
-  component="div"
-  className="error-message"
-/>       </div>
+  <div>
+  <label>
+    Course Name <span style={{ color: 'red' }}>*</span>
+  </label>
+  {applicationform ? (
+    <input
+      type="text"
+      value={applicationform.courseName}
+      disabled
+      className="text-input"
+    />
+  ) : (
+    <Field
+      as="select"
+      name="courseId"
+      onChange={(e) => handleCourseChange(e.target.value, setFieldValue)}
+      value={values.courseId}
+      className="text-input"
+    >
+      <option value="">Select Course</option>
+      {courseList.map((course) => (
+        <option key={course.courseID} value={course.courseID}>
+          {course.courseName}
+        </option>
+      ))}
+    </Field>
+  )}
+  <ErrorMessage name="courseId" component="div" className="error-message" />
+</div>
 
-      <div>
-        <label>
-          Batch Name <span style={{ color: 'red' }}>*</span>
-        </label>
-        <Field
-          as="select"
-          name="batchId"
-          onChange={(e) => handleBatchChange(e.target.value, setFieldValue)}
-          value={values.batchId}
-          
-        >
-          <option value="">Select Batch</option>
-          {batches.map((batch) => (
-            <option key={batch.batchID} value={batch.batchID}>
-              {batch.batchName}
-            </option>
-          ))}
-        </Field>
-<ErrorMessage
-  name="batchId"
-  component="div"
-  className="error-message"
-/>       </div>
+<div>
+  <label>
+    Batch Name <span style={{ color: 'red' }}>*</span>
+  </label>
+  {applicationform ? (
+    <input
+      type="text"
+      value={applicationform.batchName}
+      disabled
+      className="text-input"
+    />
+  ) : (
+    <Field
+      as="select"
+      name="batchId"
+      onChange={(e) => handleBatchChange(e.target.value, setFieldValue)}
+      value={values.batchId}
+      className="text-input"
+    >
+      <option value="">Select Batch</option>
+      {batches.map((batch) => (
+        <option key={batch.batchID} value={batch.batchID}>
+          {batch.batchName}
+        </option>
+      ))}
+    </Field>
+  )}
+  <ErrorMessage name="batchId" component="div" className="error-message" />
+</div>
+
+
 
                 {(selectedBatch || applicationform) && (
   <div className="batch-details-card">
-    <h4>Batch Details</h4>
-    
-    <p>
-      <strong>Total Seats:</strong>{" "}
-      {applicationform?.totalSeats ?? selectedBatch?.totalSeats}
-    </p>
-
-    <p>
-      <strong>Available Seats:</strong>{" "}
-      {applicationform?.availableSeats ?? selectedBatch?.availableSeats}
-    </p>
-
-    <p>
-      <strong>Start Date:</strong>{" "}
-      {applicationform?.startDate ?? selectedBatch?.startDate}
-    </p>
-
-    <p>
-      <strong>Instructor:</strong>{" "}
-      {applicationform?.instructorName ?? selectedBatch?.instructorName}
-    </p>
-
-    <p>
-      <strong>Course Fee:</strong> ₹
-      {applicationform?.courseFee ?? selectedBatch?.courseFee}
-    </p>
-
-    {(applicationform?.availableSeats === 0 ||
-      selectedBatch?.availableSeats === 0) && (
-      <p style={{ color: "red", fontWeight: "bold" }}>Batch Full</p>
+  <h4>Batch Details</h4>
+  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+    <div style={{ flex: '1 1 45%' }}>
+      <p><strong>Total Seats:</strong> {applicationform?.totalSeats ?? selectedBatch?.totalSeats}</p>
+    </div>
+    <div style={{ flex: '1 1 45%' }}>
+      <p><strong>Available Seats:</strong> {applicationform?.availableSeats ?? selectedBatch?.availableSeats}</p>
+    </div>
+    <div style={{ flex: '1 1 45%' }}>
+      <p><strong>Start Date:</strong> {moment(applicationform?.batchStartDate || selectedBatch?.startDate).format("YYYY/MM/DD")}</p>
+    </div>
+    <div style={{ flex: '1 1 45%' }}>
+      <p><strong>End Date:</strong> {moment(applicationform?.batchEndDate || selectedBatch?.endDate).format("YYYY/MM/DD")}</p>
+    </div>
+   <div style={{ flex: '1 1 45%' }}>
+  <p>
+    <strong>Start Time:</strong>{" "}
+    {applicationform?.batchStartTime || selectedBatch?.startTime
+      ? moment(applicationform?.batchStartTime || selectedBatch?.startTime, "HH:mm").format("hh:mm A")
+      : ""}
+  </p>
+</div>
+<div style={{ flex: '1 1 45%' }}>
+  <p>
+    <strong>End Time:</strong>{" "}
+    {applicationform?.batchEndTime || selectedBatch?.endTime
+      ? moment(applicationform?.batchEndTime || selectedBatch?.endTime, "HH:mm").format("hh:mm A")
+      : ""}
+  </p>
+</div>
+    <div style={{ flex: '1 1 45%' }}>
+      <p><strong>Instructor:</strong> {applicationform?.instructorName ?? selectedBatch?.instructorName}</p>
+    </div>
+    <div style={{ flex: '1 1 45%' }}>
+      <p><strong>Course Fee:</strong> ₹{applicationform?.courseFee ?? selectedBatch?.courseFee}</p>
+    </div>
+    {(applicationform?.availableSeats === 0 || selectedBatch?.availableSeats === 0) && (
+      <div style={{ flex: '1 1 100%' }}>
+        <p style={{ color: "red", fontWeight: "bold" }}>Batch Full</p>
+      </div>
     )}
   </div>
+</div>
+
 )}
 
   {/*<div style={{ marginTop: '10px' }}>

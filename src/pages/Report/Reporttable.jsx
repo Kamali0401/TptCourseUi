@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { fetchCourseListReq } from "../../api/course/course";
-import { fetchBatchDropdownReq } from "../../api/batch/batch";
+import { fetchBatchDropdownReq,fetchBatchReqById } from "../../api/batch/batch";
 import Swal from "sweetalert2";
 import { publicAxios } from "../../api/config";
 import { ApiKey } from "../../api/endpoint";
@@ -28,21 +28,32 @@ export default function ReportFilterPage() {
   }, []);
 
   // Fetch batches when course changes
-  const handleCourseChange = async (id) => {
-    setCourseId(id);
+ const handleCourseChange = async (id) => {
+    debugger;
+    const courseIdInt = parseInt(id, 10); // Convert id to integer
+
+    if (isNaN(courseIdInt)) {
+        console.error("Invalid Course ID:", id);
+        return;
+    }
+
+    setCourseId(courseIdInt);
     setBatchId(""); // reset batch
-    if (!id) {
-      setBatches([]);
-      return;
+
+    if (!courseIdInt) {
+        setBatches([]);
+        return;
     }
+
     try {
-      const res = await fetchBatchDropdownReq(id);
-      setBatches(res.data || []);
+        const res = await fetchBatchReqById(courseIdInt);
+        setBatches(res.data || []);
     } catch (err) {
-      console.error("Error fetching batches:", err);
-      Swal.fire("Error", "Failed to load batches", "error");
+        console.error("Error fetching batches:", err);
+        Swal.fire("Error", "Failed to load batches", "error");
     }
-  };
+};
+
 
    // Call Report API-
   const handleSubmit = async () => {
@@ -51,8 +62,8 @@ export default function ReportFilterPage() {
     const response = await publicAxios.get(ApiKey.Report, {
       params: {
         startDate: startDate || null,
-        courseId: courseId || null,
-        batchId: batchId || null
+        course: courseId || null,
+        batch: batchId || null
       },
       responseType: "blob"
     });
