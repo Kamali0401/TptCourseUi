@@ -127,6 +127,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
         endDate: values.endDate ? moment(values.endDate).format("YYYY-MM-DD") : null,
         startTime: values.startTime ? moment(values.startTime).format("HH:mm:ss") : null,
         endTime: values.endTime ? moment(values.endTime).format("HH:mm:ss") : null,
+        
       };
 
       if (batch) {
@@ -349,7 +350,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
                instructorName: "",
                startTime: null,
                endTime: null,
-               status:"",
+               status:"UnActive",
                
                },
               }

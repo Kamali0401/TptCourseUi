@@ -16,6 +16,7 @@ import axios from "axios";
 import { loadRazorpay } from "../../src/utlis/razorpay"; // Adjust path accordingly
 import { updatePaymentFormReq} from '../api/form/form';
 import * as Yup from 'yup';
+import moment from 'moment';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
 
@@ -239,6 +240,13 @@ mobileNumber: Yup.string()
     submitValues.educationDetails = JSON.stringify(educationDetailsList);
      // ✅ Pass as array, not string
     //submitValues.educationDetails = educationDetailsList;
+    if (values.dateOfBirth) {
+    submitValues.dateOfBirth = moment(values.dateOfBirth).format("YYYY-MM-DD");
+  }
+  if (values.applicationDate) {
+    submitValues.applicationDate = moment(values.applicationDate).format("YYYY-MM-DD");
+  }
+
     return submitValues;
   };
 
@@ -265,7 +273,7 @@ debugger;
     fatherOrHusbandName: applicationform.fatherOrHusbandName || '',
     contactAddress: applicationform.contactAddress || '',
     mobileNumber: applicationform.mobileNumber || '',
-    dateOfBirth: applicationform.dateOfBirth ? new Date(applicationform.dateOfBirth) : null,
+    dateOfBirth: applicationform?.dateOfBirth? moment(applicationform.dateOfBirth).toDate(): null,
     age: applicationform.age || '',
     aadharNumber: applicationform.aadharNumber || '',
     email: applicationform.email || '',
@@ -276,7 +284,7 @@ debugger;
     declaration: applicationform.declaration || false,
     place: applicationform.place || '',
     bloodGroup:applicationform.bloodGroup || '',
-    applicationDate: applicationform.applicationDate ? new Date(applicationform.applicationDate) : null,
+    applicationDate: applicationform?.applicationDate  ? moment(applicationform.applicationDate).toDate()  : moment().toDate(),
     courseId: applicationform.courseID || '',
     batchId: applicationform.batchId || '',
     ispaymentdone : applicationform.ispaymentdone  || false,
@@ -1162,7 +1170,9 @@ onSubmit={async (values, formikHelpers) => {
           
         >
           <option value="">Select Course</option>
-          {courseList.map((course) => (
+          {courseList
+           .filter((course) => course.status === "Active")
+          .map((course) => (
             <option key={course.courseID} value={course.courseID}>
               {course.courseName}
             </option>
@@ -1186,7 +1196,9 @@ onSubmit={async (values, formikHelpers) => {
           
         >
           <option value="">Select Batch</option>
-          {batches.map((batch) => (
+          {batches
+          .filter((batch) => batch.status === "Active")
+          .map((batch) => (
             <option key={batch.batchID} value={batch.batchID}>
               {batch.batchName}
             </option>

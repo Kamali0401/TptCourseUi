@@ -44,23 +44,24 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
   });
 
   // Prefill form if editing a course
-  useEffect(() => {
-    if (course) {
-      setInitialValues({
-        courseName: course.courseName || "",
-        courseCode: course.courseCode || "",
-        courseFee: course.courseFee || "",
-       status: course.status || "UnActive",  // 🔹 Default false if null/undefined
-      });
-    } else {
-      setInitialValues({
-        courseName: "",
-        courseCode: "",
-        courseFee: "",
-        status:"UnActive"
-      });
-    }
-  }, [course, show]);
+useEffect(() => {
+  if (course) {
+    setInitialValues({
+      courseName: course.courseName || "",
+      courseCode: course.courseCode || "",
+      courseFee: course.courseFee || "",
+      status: course.status || "UnActive",
+    });
+  } else {
+    setInitialValues({
+      courseName: "",
+      courseCode: "",
+      courseFee: "",
+      status: "UnActive",
+    });
+  }
+}, [course, show]);
+
 
   const handleFormSubmit = async (values, { resetForm }) => {
     try {
@@ -195,19 +196,19 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
 
     {/* Course Status */}
     <div className="mb-3 form-check">
-      <Field name="status">
-        {({ field, form }) => (
-          <input
-            type="checkbox"
-            id="status"
-            className="form-check-input"
-            checked={field.value === "Active"}
-            onChange={(e) => {
-              form.setFieldValue("status", e.target.checked ? "Active" : "UnActive");
-            }}
-          />
-        )}
-      </Field>
+<Field name="status">
+  {({ field, form }) => (
+    <input
+      type="checkbox"
+      id="status"
+      className="form-check-input"
+      checked={field.value === "Active"}
+      onChange={(e) =>
+        form.setFieldValue("status", e.target.checked ? "Active" : "UnActive")
+      }
+    />
+  )}
+</Field>
       <label htmlFor="status" className="form-check-label">
         Course Active
       </label>
