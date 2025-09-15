@@ -28,12 +28,14 @@ const validationSchema = Yup.object({
     .max(100, "Instructor Name must be at most 100 characters")
     .required("Instructor Name is required") .matches(/^[A-Za-z0-9 .-]+$/),
 totalSeats: Yup.number()
-  .nullable() // allow null while typing
+  .nullable()
   .transform((value, originalValue) =>
     String(originalValue).trim() === "" ? null : value
   )
   .typeError("Total Seats must be a number")
-  .required("Total Seats is required"),
+  .required("Total Seats is required")
+  .min(1, "Total Seats must be greater than 0"),   // <-- added
+
 
   startTime: Yup.string().required("Start Time is required"),
   endTime: Yup.string().required("End Time is required"),
@@ -149,7 +151,9 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
             text: err?.message || "Something went wrong",
             icon: "error",
           });
-        }
+        }finally {
+      setSubmitting(false); // ✅ re-enable button
+    }
   };
 
   return (
@@ -177,7 +181,7 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
           }
         }}
       >
-        {({ values, setFieldValue, resetForm }) => (
+        {({ values, setFieldValue, resetForm , isSubmitting}) => (
           useEffect(() => {
             if (!batch) {
               setFieldValue("availableSeats", values.totalSeats || 0);
@@ -188,8 +192,13 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
             <Modal.Body>
               <div className="mb-3">
                 <label>Batch Name <span style={{ color: "red" }}>*</span></label>
-                <Field type="text" name="batchName" className="form-control" />
- <ErrorMessage
+                <Field type="text" name="batchName" className="form-control" 
+        maxlength={100}
+        onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z 0-9.-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
+        <ErrorMessage
         name="batchName"
         component="div"
         className="error-message"
@@ -275,7 +284,11 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
               
               <div className="mb-3">
                 <label>Instructor Name <span style={{ color: "red" }}>*</span></label>
-                <Field type="text" name="instructorName" className="form-control" />
+                <Field type="text" name="instructorName" className="form-control"   
+            onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z .-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+            }}/>
  <ErrorMessage
         name="instructorName"
         component="div"
@@ -347,12 +360,29 @@ export default function AddBatchModal({ show, handleClose, onSubmit, batch }) {
             </Modal.Body>
 
             <Modal.Footer>
-              <Button variant="secondary" onClick={() => resetForm()}>
+              <Button variant="secondary" onClick={() => resetForm
+                ({
+               values:{
+               batchName: "",
+               courseID: "",
+               startDate: "",
+               endDate: "",
+               totalSeats: "",
+               availableSeats: "",
+               instructorName: "",
+               startTime: null,
+               endTime: null,
+               status:"",
+               
+               },
+              }
+              )}>
                 Clear
               </Button>
-              <Button type="submit" variant="primary">
-                {batch ? "Update" : "Add"}
-              </Button>
+<Button type="submit" variant="primary" disabled={isSubmitting}>
+  {isSubmitting ? (batch ? "Updating..." : "Adding...") : batch ? "Update" : "Add"}
+</Button>
+
             </Modal.Footer>
           </Form>
         )}

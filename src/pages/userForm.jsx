@@ -173,9 +173,12 @@ const validationSchema = Yup.object({
   candidateName: Yup.string().required('Name is required').matches(/^[A-Za-z .-]+$/),
   sex: Yup.string().required('Sex is required'),
   fatherOrHusbandName: Yup.string().required('Father/Husband Name is required').matches(/^[A-Za-z .-]+$/),
-  contactAddress: Yup.string().required('Contact Address is required').matches(/^[A-Za-z0-9\s.,#/-]+$/),
+contactAddress: Yup.string()
+  .required("Contact Address is required")
+  .min(5, "Contact Address must be at least 5 characters")
+  .max(300, "Contact Address cannot exceed 300 characters"),
 mobileNumber: Yup.string()
-    .required('Mobile Number is required')
+    .required('Mobile Number is required  and cannot start with 0')
     .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits'),
  dateOfBirth: Yup.date().required('Date of Birth is required')
  .min(new Date(1900, 0, 1), 'Year must be 1900 or later')
@@ -198,7 +201,7 @@ mobileNumber: Yup.string()
     .matches(/^[0-9]{12}$/, 'Please enter your 12 digit Aadhaar number'),
   email: Yup.string()
     .required('Email is required')
-    .matches(/^[A-Za-z0-9._%+-]+@gmail\.(com|in)$/,'Please enter a valid email address'),
+    .matches(/^[a-z0-9._%+-]+@gmail\.(com|in)$/,'Please enter a valid email address'),
   bloodGroup: Yup.string().required('Blood Group is required'),
   modeOfAdmission: Yup.string().required('Mode of Admission is required'),
   candidateStatus: Yup.string().required('Candidate Status is required'),
@@ -615,12 +618,13 @@ onSubmit={async (values, formikHelpers) => {
         <label>
           Name of Candidate <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="candidateName"  maxLength={100}/>
-<ErrorMessage
-  name="candidateName"
-  component="div"
-  className="error-message"
-/>
+        <Field type="text" name="candidateName"  maxLength={100}
+        onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z .-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
+
+       <ErrorMessage name="candidateName" component="div" className="error-message"/>
 
       </div>
 
@@ -643,42 +647,58 @@ onSubmit={async (values, formikHelpers) => {
         <label>
           Name of Father/Husband <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field type="text" name="fatherOrHusbandName"   maxLength={100}/>
-<ErrorMessage
-  name="fatherOrHusbandName"
-  component="div"
-  className="error-message"
-/>      </div>
+        <Field type="text" name="fatherOrHusbandName"   maxLength={100}
+                onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z .-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
+        <ErrorMessage name="fatherOrHusbandName" component="div" className="error-message"/>     
+       </div>
 
       <div>
         <label>
           Contact Address <span style={{ color: 'red' }}>*</span>
         </label>
-        <Field as="textarea" name="contactAddress"  maxLength={1000}/>
-<ErrorMessage
+<Field
+  as="textarea"
   name="contactAddress"
-  component="div"
-  className="error-message"
-/>        </div>
+  rows={3}
+  maxLength={300}
+  onInput={(e) => {
+    let val = e.target.value;
+    val = val.replace(/[^A-Za-z0-9\s.,/-]/g, "");
+    val = val.replace(/\s{2,}/g, " ");
+    e.target.value = val;
+  }}
+/>
+<ErrorMessage name="contactAddress" component="div" className="error-message" />
+
+      </div>
 
  <div>
   <label>
     Mobile Number <span style={{ color: 'red' }}>*</span>
   </label>
-  <Field
-    name="mobileNumber"
-    type="tel"
-    maxLength={10}
-    onInput={(e) => {
-      // Replace anything that is NOT a number with empty string
-      e.target.value = e.target.value.replace(/[^0-9]/g, "");
-    }}
-  />
-  <ErrorMessage
-    name="mobileNumber"
-    component="div"
-    className="error-message"
-  />
+ <Field
+  name="mobileNumber"
+  type="tel"
+  maxLength={10}
+  onInput={(e) => {
+    // ✅ Only digits allowed
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+
+    // ✅ Prevent starting with 0
+    if (e.target.value.startsWith("0")) {
+      e.target.value = e.target.value.slice(1);
+    }
+
+    // ✅ Limit to 10 digits
+    if (e.target.value.length > 10) {
+      e.target.value = e.target.value.slice(0, 10);
+    }
+  }}
+/>
+<ErrorMessage name="mobileNumber" component="div" className="error-message" />
 </div>
 
 
@@ -735,6 +755,11 @@ onSubmit={async (values, formikHelpers) => {
     name="email" 
     type="email" 
     maxLength={100}  
+    onInput={(e) => {
+    e.target.value = e.target.value
+    .toLowerCase().replace(/\s+/g, "")
+    .replace(/[^a-z0-9@._-]/g, "");
+  }}
   />
   <ErrorMessage
     name="email"
@@ -896,11 +921,16 @@ onSubmit={async (values, formikHelpers) => {
         <>
           <div>
             <label>Working At</label>
-            <Field type="text" name="ifEmployed_WorkingAt" maxLength={150} />
+            <Field type="text" name="ifEmployed_WorkingAt" maxLength={150} 
+             onInput={(e) => {
+       e.target.value = e.target.value.replace(/[^A-Za-z .-]/g, "");
+       e.target.value = e.target.value.replace(/\s{2,}/g, " ");
+       }}/>
           </div>
-          <div>
+        <div>
             <label>Designation</label>
-            <Field type="text" name="desgination" maxLength={20}/>
+            <Field type="text" name="desgination" maxLength={20} 
+            />
           </div>
         </>
       )}
