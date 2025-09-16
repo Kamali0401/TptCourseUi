@@ -19,7 +19,7 @@ import * as Yup from 'yup';
 import moment from 'moment';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
-import moment from 'moment';
+//import moment from 'moment';
 
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
@@ -1187,7 +1187,10 @@ onSubmit={async (values, formikHelpers) => {
       className="text-input"
     >
       <option value="">Select Course</option>
-      {courseList.map((course) => (
+      {courseList
+      .filter((course) => course.status === "Active")
+      .map((course) => (
+        
         <option key={course.courseID} value={course.courseID}>
           {course.courseName}
         </option>
@@ -1217,7 +1220,9 @@ onSubmit={async (values, formikHelpers) => {
       className="text-input"
     >
       <option value="">Select Batch</option>
-      {batches.map((batch) => (
+      {batches
+      .filter((batch) => batch.status === "Active")
+      .map((batch) => (
         <option key={batch.batchID} value={batch.batchID}>
           {batch.batchName}
         </option>
