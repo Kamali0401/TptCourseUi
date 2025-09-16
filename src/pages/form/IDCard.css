@@ -1,4 +1,4 @@
-@media print {
+/*@media print {
   body * {
     visibility: hidden;
   }
@@ -30,7 +30,7 @@
 .id-card {
   width: 8.5cm;
   height: 5.5cm;
-  border: 1px solid #0b2d64; /* ✅ clean border like 2nd image */
+  border: 1px solid #0b2d64; 
   padding: 6px;
   font-family: Arial, sans-serif;
   font-size: 11px;
@@ -39,7 +39,7 @@
   background: white;
 }
 
-/* 🔵 HEADER */
+
 .header {
   display: flex;
   align-items: center;
@@ -67,7 +67,7 @@
   font-size: 9px;
   font-weight: bold;
   margin-bottom: 1px;
-  white-space: nowrap;   /* ✅ keeps in one line */
+  white-space: nowrap;   
 }
 
 
@@ -77,15 +77,15 @@
   margin-bottom: 1px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  text-align: center;   /* ✅ forces this line to center */
-  width: 100%;          /* ✅ ensures full width so centering works */
+  text-align: center;   
+  width: 100%;         
 }
 
 .line {
   font-size: 8.5px;
 }
 
-/* TITLE */
+
 .title {
   text-align: center;
   font-weight: bold;
@@ -97,7 +97,7 @@
    color: #0b2d64;
 }
 
-/* DETAILS SECTION */
+
 .front .details {
   display: flex;
   justify-content: space-between;
@@ -123,10 +123,10 @@
   margin-top: 3px;
 }
 
-/* PHOTO */
 
 
-/* SIGNATURES INSIDE BORDER */
+
+
 .signature-section {
   display: flex;
   justify-content: space-between;
@@ -138,7 +138,6 @@
   color: #0b2d64; 
 }
 
-/* BACK SIDE */
 .back .field {
   margin-bottom: 8px;
   font-size: 10.5px;
@@ -154,9 +153,247 @@
   left: 6px;
   right: 6px;
   color: #0b2d64; 
+}*/
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #print-id-card,
+  #print-id-card * {
+    visibility: visible;
+  }
+
+  #print-id-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .no-print {
+    display: none !important;
+  }
 }
 
-/* PRINT FIX */
+/* Container styling */
+.id-card-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1cm;
+  align-items: center;
+  margin: 1cm auto;
+}
+
+/* Card styling */
+.id-card {
+  width: 8.5cm;
+  height: 5.5cm;
+  border: 1px solid #0b2d64;
+  padding: 6px;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  box-sizing: border-box;
+  position: relative;
+  background: white;
+  color: #0b2d64;
+}
+
+/* Header styling */
+.header {
+  display: flex;
+  align-items: center;
+  background-color: #0b2d64;
+  color: white;
+  padding: 2px 3px;
+  font-size: 9px;
+  line-height: 1.3;
+  font-weight: bold;
+  border-bottom: 1px solid #0b2d64;
+}
+
+.title {
+  text-align: center;
+  font-weight: bold;
+  margin: 4px 0;
+  font-size: 11px;
+  border-bottom: 1px solid #0b2d64;
+  padding-bottom: 2px;
+  color: #0b2d64;
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+.left-info {
+  flex: 1;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.label {
+  width: 80px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.colon {
+  width: 10px;
+  text-align: center;
+}
+
+.value {
+  flex: 1;
+  color: #0b2d64;
+}
+/*.validity-row {
+  display: flex;
+  justify-content: space-between; 
+  margin-top: 5px;
+   
+}
+
+.validity-group {
+  display: flex;
+  align-items: center;
+  
+}
+
+.validity-label {
+  text-align: left;
+  font-weight: bold;
+  width: auto; 
+  margin-right: 2px; 
+}
+
+.to-label {
+  font-weight: bold;
+  margin-right: 2px; 
+}
+
+.validity-colon {
+  font-weight: bold;
+  width: 10px;
+}
+
+
+.validity-box {
+  border: 1px solid #0b2d64; 
+  padding: 2px 5px;
+  border-radius: 3px;
+
+}
+
+
+.validity-value {
+  font-size: 8px;
+  font-weight: 500;
+}*/
+.validity-row {
+  display: flex;
+  justify-content: flex-start; /* keeps groups close */
+  gap: 1px; /* space between "Valid From" and "To" groups */
+  margin-top: 5px;
+}
+
+.validity-group {
+  display: flex;
+  align-items: center;
+ 
+}
+
+.validity-label {
+  width: 75px;       /* fixed width for alignment */
+  text-align: left;
+  font-weight: bold;
+  margin-right: 5px; /* only for "Valid From" spacing */
+}
+
+.to-label {
+  width: auto;        /* removes fixed width */
+  margin-right: 2px; 
+    font-weight: bold; /* minimal spacing from colon */
+}
+
+.validity-colon {
+        /* same as .colon */
+  text-align: center;
+  font-weight: bold;
+  margin-right: 10px; 
+}
+
+
+
+
+/*}.validity-colon {
+  font-weight: bold;
+  margin-right: 2px;
+}*/
+
+.validity-box {
+  border: 1px solid #0b2d64;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+.validity-value {
+  font-size: 8px;
+  font-weight: 500;
+}
+
+
+
+
+
+.stamp-box {
+  width: 2cm;
+  height: 2.5cm;
+  border: 1px solid #0b2d64;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0.5mm;
+  box-sizing: border-box;
+  background-color: white;
+  margin-top: -4px;
+}
+
+
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  font-size: 10px;
+}
+
+.back .field {
+  margin-bottom: 8px;
+  font-size: 10.5px;
+}
+
+.back .signature-section {
+  font-size: 9.5px;
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  right: 6px;
+}
+
 @media print {
   body {
     margin: 0 !important;
