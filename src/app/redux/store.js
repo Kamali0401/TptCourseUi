@@ -7,6 +7,7 @@ import {thunk} from "redux-thunk";
 import  CourseSlice  from "./slice/courseSlice";
 import  BatchSlice  from "./slice/batchSlice";
 import FormSlice  from "./slice/formSlice";
+import UserSlice from "./slice/usersSlice"
 const persistConfig = {
   key: "root",
   storage,
@@ -18,7 +19,8 @@ const persistedReducer = persistReducer(
   combineReducers({
     course: CourseSlice, 
     batch:BatchSlice,
-    form:FormSlice// required for store to be valid
+    form:FormSlice,// required for store to be valid
+    user: UserSlice
   })
 );
 

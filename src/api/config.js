@@ -1,9 +1,9 @@
 import axios from "axios";
 
-//const _baseURL = "https://localhost:44315/api";
+const _baseURL = "https://localhost:44315/api";
 
 //const _baseURL = "http://103.62.146.210:84/api";
-const _baseURL = "http://103.62.146.210:84/api";
+//const _baseURL = "http://103.62.146.210:84/api";
  
 // const _baseURL = "http://prasath-001-site5.ntempurl.com/api";
 const _ProductURL = "http://103.53.52.215:85/api";
