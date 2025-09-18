@@ -12,6 +12,7 @@ import Sucess from "../../pages/paymentsuccess.jsx";
 import Login from "../../pages/login/login.jsx";
 import { routePath as RP } from "./routhpath";
 import ReportFilterPage from "../../pages/Report/Reporttable.jsx";
+import UserTable from "../../pages/User/Usertable.jsx";
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
           <Route path={RP.applicationtable} element={<ApplicationFormTablePage />} />
           <Route path={RP.studentApplicationForm} element={<UserForm />} />
           <Route path={RP.Reporttable} element={<ReportFilterPage/>} />
+          <Route path={RP.User} element={<UserTable/>} />
           
         </Route>
          <Route path={RP.success} element={<Sucess />} />

@@ -14,4 +14,5 @@ export const routePath = {
     studentApplicationForm:"studentApplicationForm",
     Reporttable:"Reporttable",
     success:"/payment-success",
+    User:"User",
   };

@@ -41,6 +41,9 @@ const Sidebar = ({ isOpen, onClose }) => {
       case "Report":
         path = RP.Reporttable;
         break;
+      case "User":
+        path = RP.User;
+        break;
       default:
         path = "/";
     }
@@ -117,6 +120,12 @@ const Sidebar = ({ isOpen, onClose }) => {
             onClick={() => handleNavigation("Report")}
           >
             Report
+          </NavItem>
+                    <NavItem
+            className={activeItem === "User" ? "active" : ""}
+            onClick={() => handleNavigation("User")}
+          >
+            User
           </NavItem>
         </NavList>
 
