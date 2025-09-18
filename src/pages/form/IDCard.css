@@ -179,10 +179,10 @@
 /* Container styling */
 .id-card-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1cm;
-  align-items: center;
-  margin: 1cm auto;
+ align-items: flex-start;
+   margin: 1cm auto;
 }
 
 /* Card styling */

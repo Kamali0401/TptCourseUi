@@ -19,7 +19,6 @@ import * as Yup from 'yup';
 import moment from 'moment';
 //import RazorpayCheckout, { CheckoutOptions } from 'react-native-razorpay';
 //import RazorpayCheckout from 'react-native-razorpay';
-//import moment from 'moment';
 
 const QUALIFICATIONS = [
   { key: 'sslc', label: 'SSLC' },
@@ -194,7 +193,7 @@ contactAddress: Yup.string()
   .min(5, "Contact Address must be at least 5 characters")
   .max(300, "Contact Address cannot exceed 300 characters"),
 mobileNumber: Yup.string()
-    .required('Mobile Number is required  and cannot start with 0')
+    .required('Mobile Number is required')
     .matches(/^[0-9]{10}$/, 'Mobile number must be 10 digits'),
  dateOfBirth: Yup.date().required('Date of Birth is required')
  .min(new Date(1900, 0, 1), 'Year must be 1900 or later')
@@ -215,10 +214,7 @@ mobileNumber: Yup.string()
  aadharNumber: Yup.string()
     .required('Aadhaar Number is required')
     .matches(/^[0-9]{12}$/, 'Please enter your 12 digit Aadhaar number'),
-  email: Yup.string()
-    .required('Email is required')
-    .matches(/^[a-z0-9._%+-]+@gmail\.(com|in)$/,'Please enter a valid email address'),
-  bloodGroup: Yup.string().required('Blood Group is required'),
+  
   modeOfAdmission: Yup.string().required('Mode of Admission is required'),
   candidateStatus: Yup.string().required('Candidate Status is required'),
   place: Yup.string().required('Place is required') .matches(/^[A-Za-z .-]+$/),
@@ -260,41 +256,26 @@ mobileNumber: Yup.string()
 
     return submitValues;
   };
-
-
-
-  /*const handleSave = async (values) => {
-    debugger;
-    const payload = prepareSubmitData(values);
-    console.log("Saving new application:", payload);
-    await addNewForm({ ...payload,
-      courseId: Number(payload.courseId),  // convert to integer
-    batchId: Number(payload.batchId),    // convert to integer
-      createdBy: "AdminUser" }, dispatch);
-debugger;
-      await handleSubmit(values);
-  };*/
-
-  
-
-  const initialValues = applicationform ? {
+const initialValues = applicationform ? {
     applicationID: applicationform.applicationID || 0,
     candidateName: applicationform.candidateName || '',
     sex: applicationform.sex || '',
     fatherOrHusbandName: applicationform.fatherOrHusbandName || '',
     contactAddress: applicationform.contactAddress || '',
     mobileNumber: applicationform.mobileNumber || '',
+    whatsappNumber: applicationform.whatsappNumber || null,
+
     dateOfBirth: applicationform?.dateOfBirth? moment(applicationform.dateOfBirth).toDate(): null,
     age: applicationform.age || '',
     aadharNumber: applicationform.aadharNumber || '',
-    email: applicationform.email || '',
+    email: applicationform.email || null,
     modeOfAdmission: applicationform.modeOfAdmission || '',
     candidateStatus: applicationform.candidateStatus || '',
     ifEmployed_WorkingAt: applicationform.ifEmployed_WorkingAt || '',
     desgination: applicationform.desgination || '',
     declaration: applicationform.declaration || false,
     place: applicationform.place || '',
-    bloodGroup:applicationform.bloodGroup || '',
+    bloodGroup:applicationform.bloodGroup || null,
     applicationDate: applicationform?.applicationDate  ? moment(applicationform.applicationDate).toDate()  : moment().toDate(),
     courseId: applicationform.courseID || '',
     batchId: applicationform.batchId || '',
@@ -309,18 +290,18 @@ debugger;
     fatherOrHusbandName: '',
     contactAddress: '',
     mobileNumber: '',
+    whatsappNumber: null,
     dateOfBirth: null,
     age: '',
     aadharNumber: '',
-    email: '',
+    email: null,
     modeOfAdmission: '',
     candidateStatus: '',
     ifEmployed_WorkingAt: '',
     desgination: '',
     declaration: false,
     place:'',
-    applicationDate:null,
-    bloodGroup: '',
+    bloodGroup: null,
     courseId: '',
     batchId: '',
     isPaymentDone: false,
@@ -354,27 +335,7 @@ debugger;
 };*/
 const [filesList, setFilesList] = useState(applicationform?.files || []);
 
-// Handle file change for new uploads
-/*const handleFileChange = (event, setFieldValue) => {
-  const file = event.currentTarget.files[0];
-  if (file) {
-    debugger;
-    const allowedTypes = ["image/png", "image/jpeg"];
-    if (!allowedTypes.includes(file.type)) {
-      alert("Only PNG and JPG images are allowed!");
-      event.target.value = null;
-      return;
-    }
 
-    // Update Formik field
-    setFieldValue("photo", file);
-
-    // Append new file to existing list
-    setFilesList((prev) => [...prev, file.name]);
-  }
-};*/
-// 
-// Handler for download button
 const handleDownload = async (fileName, id) => {
   if (!fileName || !applicationform?.applicationID) return;
 
@@ -749,7 +710,7 @@ onSubmit={async (values, formikHelpers) => {
 
  <div>
   <label>
-    Mobile Number <span style={{ color: 'red' }}>*</span>
+    Mobile Number <span style={{ color: "red" }}>*</span>
   </label>
  <Field
   name="mobileNumber"
@@ -772,7 +733,30 @@ onSubmit={async (values, formikHelpers) => {
 />
 <ErrorMessage name="mobileNumber" component="div" className="error-message" />
 </div>
+ <div>
+  <label>
+    Whatsapp Number 
+  </label>
+ <Field
+  name="whatsappNumber"
+  type="tel"
+  maxLength={10}
+  onInput={(e) => {
+    // ✅ Only digits allowed
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
 
+    // ✅ Prevent starting with 0
+    if (e.target.value.startsWith("0")) {
+      e.target.value = e.target.value.slice(1);
+    }
+
+    // ✅ Limit to 10 digits
+    if (e.target.value.length > 10) {
+      e.target.value = e.target.value.slice(0, 10);
+    }
+  }}
+/>
+</div>
 
       <div>
     <label>
@@ -828,7 +812,7 @@ onSubmit={async (values, formikHelpers) => {
 </div>
 <div>
   <label>
-    Email ID <span style={{ color: 'red' }}>*</span>
+    Email ID 
   </label>
   <Field 
     name="email" 
@@ -840,17 +824,13 @@ onSubmit={async (values, formikHelpers) => {
     .replace(/[^a-z0-9@._-]/g, "");
   }}
   />
-  <ErrorMessage
-    name="email"
-    component="div"
-    className="error-message"
-  />
+ 
 </div>
 
 
  <div>
   <label>
-    Blood Group <span style={{ color: 'red' }}>*</span>
+    Blood Group 
   </label>
   <Field as="select" name="bloodGroup">
     <option value="">Select Blood Group</option>
@@ -863,18 +843,14 @@ onSubmit={async (values, formikHelpers) => {
     <option value="AB+">AB+</option>
     <option value="AB-">AB-</option>
   </Field>
-  <ErrorMessage
-    name="bloodGroup"
-    component="div"
-    className="error-message"
-  />
+ 
 </div>
 
 
       {/* Qualification Details Section */}
       <div className="qualification-table-container">
         <h4>
-          Academic Qualifications <span style={{ color: 'red' }}>*</span>
+          Academic Qualifications 
         </h4>
         <table className="qualification-table">
           <thead>
@@ -1082,10 +1058,12 @@ onSubmit={async (values, formikHelpers) => {
         </label>
         <Field as="select" name="modeOfAdmission" >
           <option value="">Select</option>
-          <option value="Advertisement">Advertisement</option>
+          <option value="NewsPaperAdvertisement">News Paper Advertisement</option>
           <option value="Friends">Friends</option>
           <option value="OldStudent">Old Student</option>
           <option value="Staff">Staff</option>
+          <option value="SocialMedia">Social Media</option>
+
         </Field>
 <ErrorMessage
   name="modeOfAdmission"
@@ -1187,10 +1165,7 @@ onSubmit={async (values, formikHelpers) => {
       className="text-input"
     >
       <option value="">Select Course</option>
-      {courseList
-      .filter((course) => course.status === "Active")
-      .map((course) => (
-        
+      {courseList.map((course) => (
         <option key={course.courseID} value={course.courseID}>
           {course.courseName}
         </option>
@@ -1220,9 +1195,7 @@ onSubmit={async (values, formikHelpers) => {
       className="text-input"
     >
       <option value="">Select Batch</option>
-      {batches
-      .filter((batch) => batch.status === "Active")
-      .map((batch) => (
+      {batches.map((batch) => (
         <option key={batch.batchID} value={batch.batchID}>
           {batch.batchName}
         </option>
@@ -1405,77 +1378,102 @@ onSubmit={async (values, formikHelpers) => {
    
     
 {isSubmitClicked && !isUpdateClicked && !values.ispaymentdone && (
-  <>
-  <button
-    type="button"
+  <div
     style={{
-      backgroundColor: '#007bff',
-      color: '#fff',
-      border: 'none',
-      padding: '12px 20px',
-      borderRadius: '6px',
-      fontSize: '16px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      width: '100%',
+      border: "1px solid black",
+      padding: "20px",
+      borderRadius: "8px",
+      marginTop: "20px",
+      maxWidth: "400px",
     }}
-    onClick={() =>
-      handleRazorpayPayment(
-        saveddata,
-         (selectedBatch?.courseFee) || 0 // override courseFee with selected batch fee
-      )
-    }
   >
-    Pay ₹{selectedBatch?.courseFee || 0} 🔒
-  </button>
-   {admin === "Admin" && (
-<button
-          type="button"
-          style={{
-            backgroundColor: '#6c757d',
-            color: '#fff',
-            border: 'none',
-            padding: '12px 20px',
-            borderRadius: '6px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            width: '100%',
-          }}
-          onClick={handleClose}
-        >
-          Close
-        </button>
-   )}
-        </>
+    {/* Payment Mode */}
+    <div style={{ display: "flex", gap: "20px", marginBottom: "15px" }}>
+      <label>
+        <Field type="radio" name="paymentMode" value="cash" />
+        Cash
+      </label>
+      <label>
+        <Field type="radio" name="paymentMode" value="card" />
+        Card
+      </label>
+    </div>
+
+    {/* Full Payment */}
+    <div style={{ marginBottom: "10px" }}>
+      <label>
+        <Field type="checkbox" name="fullPayment" />
+        Full Payment
+      </label>
+      <Field
+        type="number"
+        name="fullAmount"
+        disabled={!values.fullPayment}
+        style={{
+          marginLeft: "10px",
+          width: "100px",
+          textAlign: "right",
+        }}
+      />
+    </div>
+
+    {/* Split Payment */}
+    <div style={{ marginBottom: "10px" }}>
+      <label>
+        <Field type="checkbox" name="splitPayment" />
+        Split
+      </label>
+      {values.splitPayment && (
+        <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <Field
+            type="number"
+            name="split1"
+            placeholder="1000"
+            style={{ width: "100px", textAlign: "right" }}
+          />
+          <span style={{ fontSize: "20px", fontWeight: "bold" }}>+</span>
+          <Field
+            type="number"
+            name="split2"
+            placeholder="1000"
+            style={{ width: "100px", textAlign: "right" }}
+          />
+        </div>
+      )}
+    </div>
+
+    {/* Balance */}
+    <div style={{ marginTop: "10px", color: "red", fontWeight: "bold" }}>
+      Balance: {selectedBatch?.courseFee || 0}
+    </div>
+
+    {/* Pay Button */}
+    <div style={{ marginTop: "15px" }}>
+      <button
+        type="button"
+        style={{
+          border: "1px solid red",
+          padding: "8px 20px",
+          background: "white",
+          color: "red",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+        onClick={() =>
+          handleRazorpayPayment(
+            saveddata,
+            values.fullPayment
+              ? values.fullAmount
+              : Number(values.split1 || 0) + Number(values.split2 || 0)
+          )
+        }
+      >
+        Pay
+      </button>
+    </div>
+  </div>
 )}
- 
- 
-{/* Pay button for update */}
-{isUpdateClicked && !isSubmitClicked && applicationform && !applicationform.ispaymentdone && (
-  <>
-  <button
-    type="button"
-   style={{
-      backgroundColor: '#007bff',
-      color: '#fff',
-      border: 'none',
-      padding: '12px 20px',
-      borderRadius: '6px',
-      fontSize: '16px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      width: '100%',
-    }}
-    onClick={() => handleRazorpayPayment(applicationform )}
-  >
-    Pay ₹{applicationform.courseFee || '0'} 🔒
-  </button>
+
    {admin === "Admin" && (
 <button
           type="button"
@@ -1494,7 +1492,7 @@ onSubmit={async (values, formikHelpers) => {
           Close
         </button>
    )}
-        </>
+        </div>
 )}
    
  
@@ -1537,11 +1535,11 @@ onSubmit={async (values, formikHelpers) => {
       </>
     )}
   </div>
-</div>
+
 
 </Form>
 
-      )}
+      
     </Formik>
     </div>
     </div>

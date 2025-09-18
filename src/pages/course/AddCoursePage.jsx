@@ -24,6 +24,11 @@ const validationSchema = Yup.object({
     .max(20, "Course Code must be at most 20 characters")
     .required("Course Code is required"),
 
+  courseShortForm: Yup.string()
+  .matches(/^[A-Z]{2}$/, "Course Short Form must be exactly 2 capital letters")
+  .required("Course Short Form is required"),
+
+
 courseFee: Yup.string()
   .required("Course Fee is required")
  // .matches(/^\d+(\.\d{1,2})?$/, "Course Fee must be a valid number with up to 2 decimals")
@@ -39,6 +44,7 @@ export default function AddCourseModal({ show, handleClose, onSubmit, course }) 
   const [initialValues, setInitialValues] = useState({
     courseName: "",
     courseCode: "",
+    courseShortForm: "",
     courseFee: "",
     status:"UnActive"
   });
@@ -49,6 +55,7 @@ useEffect(() => {
     setInitialValues({
       courseName: course.courseName || "",
       courseCode: course.courseCode || "",
+      courseShortForm: course.courseShortForm || "",
       courseFee: course.courseFee || "",
       status: course.status || "UnActive",
     });
@@ -56,6 +63,7 @@ useEffect(() => {
     setInitialValues({
       courseName: "",
       courseCode: "",
+      courseShortForm: "",
       courseFee: "",
       status: "UnActive",
     });
@@ -160,6 +168,31 @@ useEffect(() => {
         className="error-message"
       /> 
     </div>
+    {/* Course Short Form */}
+<div className="mb-3">
+  <label>
+    Course Short Form <span style={{ color: "red" }}>*</span>
+  </label>
+  <Field
+    type="text"
+    name="courseShortForm"
+    className="form-control"
+    maxLength={2} // ✅ restrict to 2 characters
+    onInput={(e) => {
+      // ✅ Allow only capital letters, max 2
+      e.target.value = e.target.value
+        .toUpperCase()        // convert lowercase → uppercase
+        .replace(/[^A-Z]/g, "") // remove anything not A–Z
+        .slice(0, 2);           // enforce max 2 letters
+    }}
+  />
+  <ErrorMessage
+    name="courseShortForm"
+    component="div"
+    className="error-message"
+  />
+</div>
+
 
     {/* Course Fee */}
     <div className="mb-3">
