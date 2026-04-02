@@ -48,10 +48,10 @@ export const fetchBatchListReq = async () => {
       throw { error: true, data: "", message: "", errorMsg: error };
     }
   };
-  export const fetchBatchDropdownReq = async (courseId) => {
+  export const fetchBatchDropdownReq = async (courseId,type) => {
     try {
       debugger;
-      const res = await publicAxios.get(`${ApiKey.BatchDropdown}?courseId=${courseId}`);
+      const res = await publicAxios.get(`${ApiKey.BatchDropdown}?courseId=${courseId}&type=${type}`);
   
       const _data = res.data;
       return { error: false, data: _data, message: "", errorMsg: "" };
