@@ -10,7 +10,7 @@ export const ApiKey = {
     downloadApplicationFiles: "downloads/downloadAttachments", 
     Report: "/applicationform/report",
     Payment: "/applicationform/payment",
-    User:"/userDto"
+    User:"/user"
 
 
   };

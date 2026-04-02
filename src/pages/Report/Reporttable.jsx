@@ -46,7 +46,7 @@ export default function ReportFilterPage() {
     }
 
     try {
-        const res = await fetchBatchReqById(courseIdInt);
+        const res = await fetchBatchDropdownReq(courseIdInt,"All");
         setBatches(res.data || []);
     } catch (err) {
         console.error("Error fetching batches:", err);
@@ -125,7 +125,7 @@ export default function ReportFilterPage() {
             onChange={(e) => setBatchId(e.target.value)}
             disabled={!courseId}
           >
-            <option value="">Select Batch</option>
+           <option value="">Select Batch</option>
             {batches.map((batch) => (
               <option key={batch.batchID} value={batch.batchID}>
                 {batch.batchName}
