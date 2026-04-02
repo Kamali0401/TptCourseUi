@@ -66,7 +66,7 @@ export const addNewUserReq = async (data) => {
 ------------------------------- */
 export const updateUserReq = async (data) => {
   try {
-    const res = await publicAxios.put(`${ApiKey.User}`, data);
+    const res = await publicAxios.put(`${ApiKey.User}/${data.Id}`, data);
     const msg = res.data.message;
     const _data = res.data;
     return { error: false, data: _data, message: msg, errorMsg: "" };
